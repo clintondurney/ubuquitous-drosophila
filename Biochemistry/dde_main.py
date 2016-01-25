@@ -1,6 +1,8 @@
 # biochemical signaling model 
 
 # import pydelay and numpy and pylab
+
+from __future__ import absolute_import
 import numpy as np
 import matplotlib.pyplot as plt
 import pylab as pl
@@ -74,11 +76,11 @@ AB = dde.sol['AB']
 AR = dde.sol['AR']
 
 # print the IC's and constants
-print "The parameters used were: "
-print json.dumps(params, indent = 1)
+print("The parameters used were:")
+print(json.dumps(params, indent = 1))
 
-print "The initial conditions used were: "
-print json.dumps(init_cond, indent = 1)
+print("The initial conditions used were: ")
+print(json.dumps(init_cond, indent = 1))
 
 # Create plots 
 plt.figure(1)

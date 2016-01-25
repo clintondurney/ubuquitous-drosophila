@@ -1,10 +1,9 @@
 import numpy as np
-from scipy.integrate import odeint
 import pylab as plt
 import networkx as nx
 import globals as const
 from dde_main import * 
-
+from scipy import interpolate
 
 ############
 #
@@ -14,7 +13,7 @@ from dde_main import *
 # Author: Clinton H. Durney
 # Email: cdurney@math.ubc.ca
 #
-# Last Edit: 13/11/15
+# Last Edit: 01/24/16
 ###########
     
 num_cells = 1       # number of cells
@@ -55,20 +54,14 @@ Rm = const.Rm0
 AB = const.AB0
 AR = const.AR0
 
-tf = 10 
-(t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_solver(Ac,Am,Bc,Bm,Rm,AB,AR,tf)
+tf = 500 
+(t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_initializer(Ac,Am,Bc,Bm,Rm,AB,AR,tf)
 
-tf = 1500 
-(t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_tester(t,Ac,Am,Bc,Bm,Rm,AB,AR,tf)
+tspan = np.linspace(500,6000,4)
 
-tf = 2000
-(t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_tester(t,Ac,Am,Bc,Bm,Rm,AB,AR,tf)
-
-tf = 2500
-(t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_tester(t,Ac,Am,Bc,Bm,Rm,AB,AR,tf)
-
-tf = 6000
-(t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_tester(t,Ac,Am,Bc,Bm,Rm,AB,AR,tf)
+for tf in tspan:
+    (t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_solver(t,Ac,Am,Bc,Bm,Rm,AB,AR,tf)
+    myo_f = myosin_conc(100.0,Rm,t[0],t[-1])
 
 ###
 # Create plots of biochemical parameters
@@ -103,17 +96,13 @@ plt.legend()
 
 plt.show()
 
-
-
-
 # Example of manually changing the coordinates of point and replotting
-# G.node[0]['pos'] = (1,1)
-# pos = nx.get_node_attributes(G,'pos')
-# nx.draw(G,pos)
-# plt.show()
+G.node[0]['pos'] = (0.75,0)
+G.node[1]['pos'] = (np.cos(np.pi/3)-.2,np.sin(np.pi/3)-.2) 
+pos = nx.get_node_attributes(G,'pos')
+nx.draw(G,pos)
+plt.show()
 ###
-
-
 
 
 

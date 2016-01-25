@@ -11,7 +11,7 @@ import numpy as np
 # Author: Clinton H. Durney
 # Email: cdurney@math.ubc.ca
 #
-# Last Edit: 13/11/15
+# Last Edit: 23/11/15
 #########
 
 
@@ -41,4 +41,4 @@ Bm0 = 0
 Rm0 = 500.
 AB0 = 0
 AR0 = 0
-
+myo0 = 0

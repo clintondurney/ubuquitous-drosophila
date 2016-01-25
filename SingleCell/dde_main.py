@@ -2,6 +2,7 @@
 
 # import pydelay and numpy and pylab
 import numpy as np
+from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 import pylab as pl
 from pydelay import dde23
@@ -9,7 +10,7 @@ import globals as const
 import csv
 import json
 
-def dde_solver(Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
+def dde_initializer(Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
     # the model equations 
     eqns = { 
         'Ac' : '-k1*Rm*Ac',
@@ -18,7 +19,7 @@ def dde_solver(Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
         'Bm' : 'k4*Am(t-tau2)*Bc(t-tau2)*Heavi(t-tau2) - k2*Am*Bm + k3*AB',
         'Rm' : 'qR - k2*Am*Rm + k2*AR',
         'AB' : 'k2*Am*Bm - k3*AB',
-        'AR' : 'k2*Am*Rm - k2*AR'
+        'AR' : 'k2*Am*Rm - k2*AR',
         }
 
     # define parameters
@@ -29,7 +30,7 @@ def dde_solver(Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
         'k4' : const.k4,
         'qR' : const.qR,
         'tau1' : const.tau1,
-        'tau2' : const.tau2
+        'tau2' : const.tau2,
         }
 
     # initial conditions
@@ -40,7 +41,7 @@ def dde_solver(Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
         'Bm' : Bm_i,
         'Rm' : Rm_i,
         'AB' : AB_i,
-        'AR' : AR_i
+        'AR' : AR_i,
         }
     
     # intialize the solver
@@ -58,7 +59,7 @@ def dde_solver(Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
         'Bm' : lambda t: init_cond['Bm'],
         'Rm' : lambda t: init_cond['Rm'],
         'AB' : lambda t: init_cond['AB'],
-        'AR' : lambda t: init_cond['AR']
+        'AR' : lambda t: init_cond['AR'],
         }
     
     dde.hist_from_funcs(histfunc,500)
@@ -76,17 +77,10 @@ def dde_solver(Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
     AB = dde.sol['AB']
     AR = dde.sol['AR']
 
-#    # print the IC's and constants
-#    print "The parameters used were: "
-#    print json.dumps(params, indent = 1)
-#
-#    print "The initial conditions used were: "
-#    print json.dumps(init_cond, indent = 1)
-
-    return (t,Ac,Am,Bc,Bm,Rm,AB,AR) 
+    return(t,Ac,Am,Bc,Bm,Rm,AB,AR) 
 
 
-def dde_tester(t_i,Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
+def dde_solver(t_i,Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
     # the model equations 
     eqns = { 
         'Ac' : '-k1*Rm*Ac',
@@ -95,7 +89,7 @@ def dde_tester(t_i,Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
         'Bm' : 'k4*Am(t-tau2)*Bc(t-tau2)*Heavi(t-tau2) - k2*Am*Bm + k3*AB',
         'Rm' : 'qR - k2*Am*Rm + k2*AR',
         'AB' : 'k2*Am*Bm - k3*AB',
-        'AR' : 'k2*Am*Rm - k2*AR'
+        'AR' : 'k2*Am*Rm - k2*AR',
         }
 
     # define parameters
@@ -106,7 +100,7 @@ def dde_tester(t_i,Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
         'k4' : const.k4,
         'qR' : const.qR,
         'tau1' : const.tau1,
-        'tau2' : const.tau2
+        'tau2' : const.tau2,
         }
 
     # initial conditions
@@ -118,7 +112,7 @@ def dde_tester(t_i,Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
         'Bm' : Bm_i,
         'Rm' : Rm_i,
         'AB' : AB_i,
-        'AR' : AR_i
+        'AR' : AR_i,
         }
     
     # intialize the solver
@@ -143,13 +137,29 @@ def dde_tester(t_i,Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
     AB = dde.sol['AB']
     AR = dde.sol['AR']
 
-#    # print the IC's and constants
-#    print "The parameters used were: "
-#    print json.dumps(params, indent = 1)
-#
-#    print "The initial conditions used were: "
-#    print json.dumps(init_cond, indent = 1)
+    return(t,Ac,Am,Bc,Bm,Rm,AB,AR)
 
-    return (t,Ac,Am,Bc,Bm,Rm,AB,AR) 
+def fun(y, t, Reg):
+    """Define the right-hand side of equation dy/dt = a*y""" 
+    f = const.k_plus * Reg
+    return f
+
+def myosin_conc(y0,Reg,ti,tf):
+
+        print(Reg)
+	# Times at which the solution is to be computed.
+	t = np.linspace(ti, tf, 51)
+
+	# Solve the equation.
+	y = odeint(fun, y0, t, args=(Reg,))
+
+	# Plot the solution.  `odeint` is generally used to solve a system
+	# of equations, so it returns an array with shape (len(t), len(y0)).
+	# In this case, len(y0) is 1, so y[:,0] gives us the solution.
+	plt.plot(t, y[:,0])
+	plt.xlabel('t')
+	plt.ylabel('y')
+	plt.show() 
+
 
 
