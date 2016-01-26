@@ -1,3 +1,5 @@
+import pdb
+
 # biochemical signaling model 
 
 # import pydelay and numpy and pylab
@@ -139,27 +141,25 @@ def dde_solver(t_i,Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
 
     return(t,Ac,Am,Bc,Bm,Rm,AB,AR)
 
-def fun(y, t, Reg):
-    """Define the right-hand side of equation dy/dt = a*y""" 
-    f = const.k_plus * Reg
+
+def fun(y, t, Reg,tspan):
+    
+    # set tolerance to find indice of time to use in Reg
+    tol = 25 
+    
+    # Find index to be used in Reg function
+    index = np.where(np.logical_and(tspan >= t - tol, tspan <= t + tol))[0][0]
+
+    Reg_cur = Reg[index]
+
+    f = const.k_plus * Reg_cur  
+    
     return f
 
-def myosin_conc(y0,Reg,ti,tf):
+def myosin_conc(y0,Reg,t):
+    tspan = t
+    return  odeint(fun,y0,t,args=(Reg,tspan,))
 
-        print(Reg)
-	# Times at which the solution is to be computed.
-	t = np.linspace(ti, tf, 51)
-
-	# Solve the equation.
-	y = odeint(fun, y0, t, args=(Reg,))
-
-	# Plot the solution.  `odeint` is generally used to solve a system
-	# of equations, so it returns an array with shape (len(t), len(y0)).
-	# In this case, len(y0) is 1, so y[:,0] gives us the solution.
-	plt.plot(t, y[:,0])
-	plt.xlabel('t')
-	plt.ylabel('y')
-	plt.show() 
 
 
 

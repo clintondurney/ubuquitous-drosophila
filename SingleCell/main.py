@@ -54,16 +54,24 @@ Rm = const.Rm0
 AB = const.AB0
 AR = const.AR0
 
-tf = 500 
+tf = 6000 
 (t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_initializer(Ac,Am,Bc,Bm,Rm,AB,AR,tf)
 
-tspan = np.linspace(500,6000,4)
+# tspan = np.linspace(500,6000,4)
 
-for tf in tspan:
-    (t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_solver(t,Ac,Am,Bc,Bm,Rm,AB,AR,tf)
-    myo_f = myosin_conc(100.0,Rm,t[0],t[-1])
+#for tf in tspan:
+#    (t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_solver(t,Ac,Am,Bc,Bm,Rm,AB,AR,tf)
 
-###
+myo_f = myosin_conc(100.0,Rm,t)
+
+
+plt.figure(10)
+plt.title("$Myosin$")
+plt.plot(t, myo_f,'r')
+plt.xlim([t[0],t[-1]])
+plt.xlabel("Time (s)")
+plt.ylabel("Myosin Concentration$")
+
 # Create plots of biochemical parameters
 plt.figure(1)
 plt.title("$Reg_m$")
