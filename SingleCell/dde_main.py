@@ -149,10 +149,10 @@ def fun(y, t, Reg,tspan):
     
     # Find index to be used in Reg function
     index = np.where(np.logical_and(tspan >= t - tol, tspan <= t + tol))[0][0]
-
     Reg_cur = Reg[index]
+    kminus = .01
 
-    f = const.k_plus * Reg_cur  
+    f = const.k_plus * Reg_cur - kminus*y
     
     return f
 
