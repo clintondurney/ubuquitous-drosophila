@@ -51,7 +51,7 @@ def dde_initializer(Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
 
     # set the simulation parameters
     # (solve from t=0 to t=tf and limit the maximum step size to 1.0) 
-    dde.set_sim_params(tfinal=tf, dtmax=1)
+    dde.set_sim_params(tfinal=tf, dtmax=.01)
 
     # set the history of the proteins
     histfunc = {
@@ -141,24 +141,17 @@ def dde_solver(t_i,Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
 
     return(t,Ac,Am,Bc,Bm,Rm,AB,AR)
 
+def kminus(myo):
+    length_diff = 1
+    return(const.k1*np.exp(-const.k2*(const.mu*(length_diff)+const.beta*myo)))
 
-def fun(y, t, Reg,tspan):
-    
-    # set tolerance to find indice of time to use in Reg
-    tol = 25 
-    
-    # Find index to be used in Reg function
-    index = np.where(np.logical_and(tspan >= t - tol, tspan <= t + tol))[0][0]
-    Reg_cur = Reg[index]
-    kminus = .01
 
-    f = const.k_plus * Reg_cur - kminus*y
-    
-    return f
+def fun(y,signal):
+    geo_frac = 1                # evenly distributed to start (single cell)
+    return(const.k_plus*signal*geo_frac - kminus(y)*y)
 
-def myosin_conc(y0,Reg,t):
-    tspan = t
-    return  odeint(fun,y0,t,args=(Reg,tspan,))
+def dmyosin(y,Reg,dt):
+    return(y+dt*fun(y,Reg))
 
 
 

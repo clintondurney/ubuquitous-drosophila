@@ -1,9 +1,10 @@
+import pdb
 import numpy as np
 import pylab as plt
 import networkx as nx
 import globals as const
 from dde_main import * 
-from scipy import interpolate
+from scipy.spatial import distance
 
 ############
 #
@@ -13,7 +14,7 @@ from scipy import interpolate
 # Author: Clinton H. Durney
 # Email: cdurney@math.ubc.ca
 #
-# Last Edit: 01/24/16
+# Last Edit: 02/05/16
 ###########
     
 num_cells = 1       # number of cells
@@ -36,14 +37,14 @@ G.add_node('medial',{'pos':origin, 'cell':1})
 i = 0
 for node in nodes:
     G.add_node(i,{'pos':node,'cell':1})
-    G.add_edge('medial',i)
+    G.add_edge('medial',i,{'name':1})
     i += 1
 G.add_path([0,1,2,3,4,5,0])
 
 # Initial plot of cell
 pos = nx.get_node_attributes(G,'pos')
-#nx.draw(G,pos)
-#plt.show()
+nx.draw(G,pos)
+plt.show()
 
 # Initial conditions of Biochemical parameters
 Ac = const.Ac0
@@ -54,20 +55,38 @@ Rm = const.Rm0
 AB = const.AB0
 AR = const.AR0
 
+# Run dde solver for the Biochemical concentrations
 tf = 6000 
 (t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_initializer(Ac,Am,Bc,Bm,Rm,AB,AR,tf)
 
-# tspan = np.linspace(500,6000,4)
 
-#for tf in tspan:
-#    (t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_solver(t,Ac,Am,Bc,Bm,Rm,AB,AR,tf)
+# Initialize variables for the mechanical model
+myosin = np.array([1])                                  # myosin conc. on spoke (variable)
+l0 = np.array([distance.euclidean(origin,p0)])          # initial length of spoke
+lengths = np.array([distance.euclidean(origin,p0)])     # length of spoke (variable)
 
-myo_f = myosin_conc(100.0,Rm,t)
+# Time difference using discretization provided by the dde solver
+dt = np.diff(t)
+
+for index in range(0,len(dt)):
+    myosin = np.append(myosin,dmyosin(myosin[-1],Rm[index],dt[index]))
+
+
+
+
+
+
+
+#############################################
+#                                           #
+# Plotting starts below here.               #
+#                                           #
+#############################################
 
 
 plt.figure(10)
 plt.title("$Myosin$")
-plt.plot(t, myo_f,'r')
+plt.plot(t, myosin,'r')
 plt.xlim([t[0],t[-1]])
 plt.xlabel("Time (s)")
 plt.ylabel("Myosin Concentration$")
