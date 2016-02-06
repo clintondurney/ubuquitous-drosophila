@@ -141,17 +141,24 @@ def dde_solver(t_i,Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
 
     return(t,Ac,Am,Bc,Bm,Rm,AB,AR)
 
-def kminus(myo):
-    length_diff = 1
+###############
+def kminus(myo,length):
+    
+    length_diff = (length - 1)
+   
     return(const.k1*np.exp(-const.k2*(const.mu*(length_diff)+const.beta*myo)))
 
-
-def fun(y,signal):
+################
+def fun(y,signal,length):
+    
     geo_frac = 1                # evenly distributed to start (single cell)
-    return(const.k_plus*signal*geo_frac - kminus(y)*y)
+    
+    return(const.k_plus*signal*geo_frac - kminus(y,length)*y)
 
-def dmyosin(y,Reg,dt):
-    return(y+dt*fun(y,Reg))
+################
+def dmyosin(y,Reg,length, dt):
+
+    return(y+dt*fun(y,Reg,length))
 
 
 
