@@ -63,16 +63,22 @@ tf = 6000
 # Initialize variables for the mechanical model
 myosin = np.array([1])                                  # myosin conc. on spoke (variable)
 l0 = np.array([distance.euclidean(origin,p0)])          # initial length of spoke
-length = np.array([distance.euclidean(origin,p0)])     # length of spoke (variable)
+length = np.array([distance.euclidean(origin,p0)])      # length of spoke (variable)
+force = np.array([0])
 
 # Time difference using discretization provided by the dde solver
 dt = np.diff(t)
 
 for index in range(0,len(dt)):
+    # At each time step:
+
+    # Update myosin concentration on each spoke
     myosin = np.append(myosin,dmyosin(myosin[-1],Rm[index], length[-1], dt[index]))
 
+    # Update force
+    force = np.append(force, calc_force(length[-1], l0, myosin[-1])) 
 
-
+    # Update Location
 
 
 #############################################

@@ -142,6 +142,11 @@ def dde_solver(t_i,Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
     return(t,Ac,Am,Bc,Bm,Rm,AB,AR)
 
 ###############
+def calc_force(l, l0, myosin):
+    
+    return const.mu*(l-l0) + const.beta*myosin
+
+###############
 def kminus(myo,length):
     
     length_diff = (length - 1)
