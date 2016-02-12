@@ -4,7 +4,7 @@ import pdb
 
 # import pydelay and numpy and pylab
 import numpy as np
-from scipy.integrate import odeint
+from scipy.spatial import distance
 import matplotlib.pyplot as plt
 import pylab as pl
 from pydelay import dde23
@@ -142,16 +142,32 @@ def dde_solver(t_i,Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
     return(t,Ac,Am,Bc,Bm,Rm,AB,AR)
 
 ###############
+def normed_direction(A,B):
+    # Calculate the normed vector BA
+
+    dist = distance.euclidean(A,B)
+
+    return ((A[0]-B[0])/dist,(A[1]-B[1])/dist)
+
+###############
+def d_pos(x_old,y_old,f,direction,dt):
+    
+    x_new = x_old + (dt/const.eta)*f*direction[0]
+
+    y_new = y_old + (dt/const.eta)*f*direction[1]
+
+    return [x_new,y_new]
+
+
+###############
 def calc_force(l, l0, myosin):
     
-    return const.mu*(l-l0) + const.beta*myosin
+    return const.mu*(l-const.l0) + const.beta*myosin
 
 ###############
 def kminus(myo,length):
-    
-    length_diff = (length - 1)
-   
-    return(const.k1*np.exp(-const.k2*(const.mu*(length_diff)+const.beta*myo)))
+   ## Need to look closer at this. 
+    return(const.k1*np.exp(-const.k2*(calc_force(length,1,myo))))
 
 ################
 def fun(y,signal,length):

@@ -63,37 +63,52 @@ tf = 6000
 # Initialize variables for the mechanical model
 myosin = np.array([1])                                  # myosin conc. on spoke (variable)
 l0 = np.array([distance.euclidean(origin,p0)])          # initial length of spoke
-length = np.array([distance.euclidean(origin,p0)])      # length of spoke (variable)
+length = distance.euclidean(origin,p0)                  # length of spoke
 force = np.array([0])
+p0_loc = [[1,0]]
 
 # Time difference using discretization provided by the dde solver
 dt = np.diff(t)
 
-for index in range(0,len(dt)):
+for index in range(0,len(dt)/10):
     # At each time step:
 
     # Update myosin concentration on each spoke
-    myosin = np.append(myosin,dmyosin(myosin[-1],Rm[index], length[-1], dt[index]))
+    myosin = np.append(myosin,dmyosin(myosin[-1],Rm[index], length, dt[index]))
 
     # Update force
-    force = np.append(force, calc_force(length[-1], l0, myosin[-1])) 
-
+    force = np.append(force, calc_force(length, l0, myosin[-1])) 
+    direction = normed_direction(origin,p0)
+    
     # Update Location
+    p0_loc.append(d_pos(p0_loc[-1][0],p0_loc[-1][1],force[-1],direction,dt[index]))
 
+    # update Length  
+    length = distance.euclidean(p0_loc[-1],origin) 
 
+pdb.set_trace()
 #############################################
 #                                           #
-# Plotting starts below here.               #
+# Plotting                                  #
 #                                           #
 #############################################
 
 
-plt.figure(10)
+plt.figure(5)
 plt.title("$Myosin$")
 plt.plot(t, myosin,'r')
 plt.xlim([t[0],t[-1]])
 plt.xlabel("Time (s)")
 plt.ylabel("Myosin Concentration$")
+
+plt.figure(6)
+plt.title("Force")
+plt.plot(t,force)
+plt.xlim([t[0],t[-1]])
+plt.xlabel("Time (s)")
+plt.ylabel("Force (N)")
+
+
 
 # Create plots of biochemical parameters
 plt.figure(1)
