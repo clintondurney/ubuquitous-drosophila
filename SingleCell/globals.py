@@ -15,14 +15,14 @@ import numpy as np
 #########
 
 
-c_1 = np.power(5.3*10,-5)
-c_2 = np.power(10,-6)
-k_plus = np.power(2.5*10,-4)
+c_1 = 5.3*10**(-5)
+c_2 = 10**(-6)
+k_plus = 2.5*10**(-4)
 m_0 = 6000
 
 mu = 1
 l0 = 1
-beta = np.power(10,-1)   # was given (10,-5) but that doesn't generate a force 
+beta = 10**(-3)   # was given (10,-5) but that doesn't generate a force 
 eta = 1
 
 k1 = 0.000003          
@@ -41,4 +41,4 @@ Bm0 = 0
 Rm0 = 500.
 AB0 = 0
 AR0 = 0
-myo0 = 0
+myo0 = 6000 

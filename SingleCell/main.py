@@ -32,19 +32,19 @@ p5 = (np.cos(5*np.pi/3),np.sin(5*np.pi/3))
 nodes = [p0,p1,p2,p3,p4,p5]
 
 # initalize Graph G of nodes and edges
-G.add_node('medial',{'pos':origin, 'cell':1})
-
-i = 0
-for node in nodes:
-    G.add_node(i,{'pos':node,'cell':1})
-    G.add_edge('medial',i,{'name':1})
-    i += 1
-G.add_path([0,1,2,3,4,5,0])
-
-# Initial plot of cell
-pos = nx.get_node_attributes(G,'pos')
-nx.draw(G,pos)
-plt.show()
+#G.add_node('medial',{'pos':origin, 'cell':1})
+#
+#i = 0
+#for node in nodes:
+#    G.add_node(i,{'pos':node,'cell':1})
+#    G.add_edge('medial',i,{'name':1})
+#    i += 1
+#G.add_path([0,1,2,3,4,5,0])
+#
+## Initial plot of cell
+#pos = nx.get_node_attributes(G,'pos')
+#nx.draw(G,pos)
+#plt.show()
 
 # Initial conditions of Biochemical parameters
 Ac = const.Ac0
@@ -61,12 +61,12 @@ tf = 6000
 
 
 # Initialize variables for the mechanical model
-myosin = np.array([1])                                  # myosin conc. on spoke (variable)
+myosin = np.array([const.myo0])                                  # myosin conc. on spoke (variable)
 l0 = np.array([distance.euclidean(origin,p0)])          # initial length of spoke
 length = distance.euclidean(origin,p0)                  # length of spoke
 force = np.array([0])
 p0_loc = [[1,0]]
-
+x_loc = [1]
 # Time difference using discretization provided by the dde solver
 dt = np.diff(t)
 
@@ -78,21 +78,21 @@ for index in range(0,len(dt)):
 
     # Update force
     force = np.append(force, calc_force(length, myosin[-1])) 
+    # pdb.set_trace()
+
     direction = normed_direction(origin,p0)
     
     # Update Location
     p0_loc.append(d_pos(p0_loc[-1][0],p0_loc[-1][1],force[-1],direction,dt[index]))
-
+    x_loc.append(p0_loc[-1][0])
     # update Length  
     length = distance.euclidean(p0_loc[-1],origin) 
 
-# pdb.set_trace()
 #############################################
 #                                           #
 # Plotting                                  #
 #                                           #
 #############################################
-
 
 plt.figure(5)
 plt.title("$Myosin$")
@@ -108,7 +108,12 @@ plt.xlim([t[0],t[-1]])
 plt.xlabel("Time (s)")
 plt.ylabel("Force (N)")
 
-
+plt.figure(7)
+plt.title("Spoke Location")
+plt.plot(t,x_loc)
+plt.xlim([t[0],t[-1]])
+plt.xlabel("Time (s)")
+plt.ylabel("Location")
 
 # Create plots of biochemical parameters
 plt.figure(1)
@@ -143,11 +148,11 @@ plt.legend()
 plt.show()
 
 # Example of manually changing the coordinates of point and replotting
-G.node[0]['pos'] = (0.75,0)
-G.node[1]['pos'] = (np.cos(np.pi/3)-.2,np.sin(np.pi/3)-.2) 
-pos = nx.get_node_attributes(G,'pos')
-nx.draw(G,pos)
-plt.show()
+#G.node[0]['pos'] = (0.75,0)
+#G.node[1]['pos'] = (np.cos(np.pi/3)-.2,np.sin(np.pi/3)-.2) 
+#pos = nx.get_node_attributes(G,'pos')
+#nx.draw(G,pos)
+#plt.show()
 ###
 
 
