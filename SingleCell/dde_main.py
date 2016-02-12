@@ -160,14 +160,14 @@ def d_pos(x_old,y_old,f,direction,dt):
 
 
 ###############
-def calc_force(l, l0, myosin):
+def calc_force(l, myosin):
     
     return const.mu*(l-const.l0) + const.beta*myosin
 
 ###############
 def kminus(myo,length):
-   ## Need to look closer at this. 
-    return(const.k1*np.exp(-const.k2*(calc_force(length,1,myo))))
+    
+    return(const.k1*np.exp(-const.k2*(calc_force(length,myo))))
 
 ################
 def fun(y,signal,length):

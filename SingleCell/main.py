@@ -70,14 +70,14 @@ p0_loc = [[1,0]]
 # Time difference using discretization provided by the dde solver
 dt = np.diff(t)
 
-for index in range(0,len(dt)/10):
+for index in range(0,len(dt)):
     # At each time step:
 
     # Update myosin concentration on each spoke
     myosin = np.append(myosin,dmyosin(myosin[-1],Rm[index], length, dt[index]))
 
     # Update force
-    force = np.append(force, calc_force(length, l0, myosin[-1])) 
+    force = np.append(force, calc_force(length, myosin[-1])) 
     direction = normed_direction(origin,p0)
     
     # Update Location
@@ -86,7 +86,7 @@ for index in range(0,len(dt)/10):
     # update Length  
     length = distance.euclidean(p0_loc[-1],origin) 
 
-pdb.set_trace()
+# pdb.set_trace()
 #############################################
 #                                           #
 # Plotting                                  #

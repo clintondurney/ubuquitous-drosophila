@@ -22,7 +22,7 @@ m_0 = 6000
 
 mu = 1
 l0 = 1
-beta = np.power(10,0)   # was given (10,-5) but that doesn't generate a force 
+beta = np.power(10,-1)   # was given (10,-5) but that doesn't generate a force 
 eta = 1
 
 k1 = 0.000003          
