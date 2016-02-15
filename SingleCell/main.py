@@ -14,7 +14,7 @@ from scipy.spatial import distance
 # Author: Clinton H. Durney
 # Email: cdurney@math.ubc.ca
 #
-# Last Edit: 02/05/16
+# Last Edit: 02/15/16
 ###########
     
 num_cells = 1       # number of cells
@@ -67,26 +67,32 @@ length = distance.euclidean(origin,p0)                  # length of spoke
 force = np.array([0])
 p0_loc = [[1,0]]
 x_loc = [1]
+tt = [0]                                 # second time counter
 # Time difference using discretization provided by the dde solver
 dt = np.diff(t)
 
+
 for index in range(0,len(dt)):
     # At each time step:
+    if t[index] >= 0:
+        tt.append(t[index])
+        # Update myosin concentration on each spoke
+        myosin = np.append(myosin,dmyosin(myosin[-1],Rm[index], length, dt[index]))
 
-    # Update myosin concentration on each spoke
-    myosin = np.append(myosin,dmyosin(myosin[-1],Rm[index], length, dt[index]))
-
-    # Update force
-    force = np.append(force, calc_force(length, myosin[-1])) 
-    # pdb.set_trace()
-
-    direction = normed_direction(origin,p0)
+        # Update force
+        force = np.append(force, calc_force(length, myosin[-1])) 
+        direction = normed_direction(origin,p0)
     
-    # Update Location
-    p0_loc.append(d_pos(p0_loc[-1][0],p0_loc[-1][1],force[-1],direction,dt[index]))
-    x_loc.append(p0_loc[-1][0])
-    # update Length  
-    length = distance.euclidean(p0_loc[-1],origin) 
+        # Update Location
+        p0_loc.append(d_pos(p0_loc[-1][0],p0_loc[-1][1],force[-1],direction,dt[index]))
+        x_loc.append(p0_loc[-1][0])
+        # update Length  
+        length = distance.euclidean(p0_loc[-1],origin) 
+    
+        if x_loc[-1] < 0:
+            print index
+            break
+
 
 #############################################
 #                                           #
@@ -96,22 +102,22 @@ for index in range(0,len(dt)):
 
 plt.figure(5)
 plt.title("$Myosin$")
-plt.plot(t, myosin,'r')
-plt.xlim([t[0],t[-1]])
+plt.plot(tt, myosin,'r')
+plt.xlim([tt[0],tt[-1]])
 plt.xlabel("Time (s)")
 plt.ylabel("Myosin Concentration$")
 
 plt.figure(6)
 plt.title("Force")
-plt.plot(t,force)
-plt.xlim([t[0],t[-1]])
+plt.plot(tt,force)
+plt.xlim([tt[0],tt[-1]])
 plt.xlabel("Time (s)")
 plt.ylabel("Force (N)")
 
 plt.figure(7)
 plt.title("Spoke Location")
-plt.plot(t,x_loc)
-plt.xlim([t[0],t[-1]])
+plt.plot(tt,x_loc)
+plt.xlim([tt[0],tt[-1]])
 plt.xlabel("Time (s)")
 plt.ylabel("Location")
 
