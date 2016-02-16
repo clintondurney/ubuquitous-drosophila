@@ -167,7 +167,10 @@ def calc_force(l, myosin):
 ###############
 def kminus(myo,length):
     
-    return(const.k1*np.exp(-const.k2*(calc_force(length,myo))))
+    if (calc_force(length,myo)) > 0:
+        return(const.c_1*np.exp(-const.c_2*(calc_force(length,myo))))
+    else:
+        return const.c_1
 
 ################
 def fun(y,signal,length):

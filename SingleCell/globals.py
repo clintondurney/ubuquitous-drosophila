@@ -1,5 +1,3 @@
-import numpy as np
-
 ########
 # 
 # globals.py 
@@ -18,7 +16,6 @@ import numpy as np
 c_1 = 5.3*10**(-5)
 c_2 = 10**(-6)
 k_plus = 2.5*10**(-4)
-m_0 = 6000.0
 
 mu = 1.0
 l0 = 1.0
