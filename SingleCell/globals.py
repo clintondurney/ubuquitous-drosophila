@@ -1,9 +1,6 @@
 ########
 # 
 # globals.py 
-# Storing of constants
-#
-#
 #
 #
 # Author: Clinton H. Durney
