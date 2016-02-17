@@ -13,13 +13,13 @@
 #########
 
 
-c_1 = 5.3*10**(-5)
-c_2 = 10**(-6)
-k_plus = 2.5*10**(-4)
+c_1 = 0.000003                  # 5.3*10**(-5)
+c_2 = 1.33*10**(-9)         # 10**(-6)
+k_plus = 2.5*10**(-3)
 
 mu = 1.0
 l0 = 1.0
-beta = 10**(-4)   # was given (10,-5) but that doesn't generate a force 
+beta = 10**(-5)         # was given (10,-5) but that doesn't generate a force 
 eta = 100.0
 
 k1 = 0.000003          
@@ -39,3 +39,12 @@ Rm0 = 500.0
 AB0 = 0.0
 AR0 = 0.0
 myo0 = 6000.0 
+
+
+
+
+
+
+
+
+
