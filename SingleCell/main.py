@@ -1,4 +1,5 @@
 import pdb
+import csv
 import numpy as np
 import pylab as plt
 import networkx as nx
@@ -14,9 +15,18 @@ from scipy.spatial import distance
 # Author: Clinton H. Durney
 # Email: cdurney@math.ubc.ca
 #
-# Last Edit: 02/15/16
+# Last Edit: 03/04/16
+#
+# To Do:    
+#           send output to csv file instead          
+#           Add in 2nd, 3rd, - 6th spoke
 ###########
-    
+
+# initialize output file
+outputFile = open('output.csv','w')
+outputWriter = csv.writer(outputFile, delimiter='\t')
+outputWriter.writerow(["time","x_loc","y_loc"])
+
 num_cells = 1       # number of cells
 
 G = nx.Graph()
@@ -61,12 +71,20 @@ tf = 6000
 
 
 # Initialize variables for the mechanical model
-myosin = np.array([const.myo0])                                  # myosin conc. on spoke (variable)
-l0 = np.array([distance.euclidean(origin,p0)])          # initial length of spoke
-length = distance.euclidean(origin,p0)                  # length of spoke
+# myosin conc. on spoke (variable)
+myosin = np.array([const.myo0])
+# initial length of spoke
+l0 = np.array([distance.euclidean(origin,p0)])                  # initial length of spoke
+# length of spoke
+length = distance.euclidean(origin,p0)                          # length of spoke
+# force
 force = np.array([0])
+# location of p0
 p0_loc = [[1,0]]
+# x_loc
 x_loc = [1]
+
+# second time counter.  Used for plotting dynamics that take strictly at t>=0
 tt = [0]                                 # second time counter
 # Time difference using discretization provided by the dde solver
 dt = np.diff(t)
@@ -86,9 +104,13 @@ for index in range(0,len(dt)):
         # Update Location
         p0_loc.append(d_pos(p0_loc[-1][0],p0_loc[-1][1],force[-1],direction,dt[index]))
         x_loc.append(p0_loc[-1][0])
+        
         # update Length  
         length = distance.euclidean(p0_loc[-1],origin) 
     
+        # Write output file
+        outputWriter.writerow([t[index],p0_loc[-1][0],p0_loc[-1][1]])
+ 
         if x_loc[-1] < 0:
             print index
             break
@@ -162,6 +184,6 @@ plt.show()
 ###
 
 
-
+outputFile.close()
 
 
