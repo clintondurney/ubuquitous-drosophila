@@ -15,17 +15,25 @@ from scipy.spatial import distance
 # Author: Clinton H. Durney
 # Email: cdurney@math.ubc.ca
 #
-# Last Edit: 03/04/16
+# Last Edit: 03/05/16
 #
 # To Do:    
-#           send output to csv file instead          
-#           Add in 2nd, 3rd, - 6th spoke
+#           write loop instead of explicit calcs
+#           Update loop to account for all spokes
+#           Write other script to parse the output
+#           Update spatial distribution of signal
+#
+#
 ###########
 
-# initialize output file
-outputFile = open('output.csv','w')
-outputWriter = csv.writer(outputFile, delimiter='\t')
-outputWriter.writerow(["time","x_loc","y_loc"])
+# initialize output files
+LocationFile = open('Location.csv','w')
+LocationWriter = csv.writer(LocationFile, delimiter='\t')
+LocationWriter.writerow(["time","x_loc_0","y_loc_0","x_loc_1","y_loc_1"])
+
+BioParamsFile = open('BioParams.csv','w')
+BioParamsWriter = csv.writer(BioParamsFile,delimiter='\t')
+BioParamsWriter.writerow(["time","myosin0","Force0","myosin1","Force1"])
 
 num_cells = 1       # number of cells
 
@@ -71,47 +79,60 @@ tf = 6000
 
 
 # Initialize variables for the mechanical model
-# myosin conc. on spoke (variable)
-myosin = np.array([const.myo0])
-# initial length of spoke
-l0 = np.array([distance.euclidean(origin,p0)])                  # initial length of spoke
-# length of spoke
-length = distance.euclidean(origin,p0)                          # length of spoke
-# force
-force = np.array([0])
-# location of p0
-p0_loc = [[1,0]]
-# x_loc
-x_loc = [1]
+# Mar. 5 - As of now, I am appending numpy arrays so that they have a history to them.
+#           If I am outputting to a csv file for interpreting later, I only need to keep 
+#           the most recent values.
 
-# second time counter.  Used for plotting dynamics that take strictly at t>=0
-tt = [0]                                 # second time counter
+# location of nodes
+p0_loc = [[p0[0],p0[1]]]
+p1_loc = [[p1[0],p1[1]]]
+p2_loc = [[p2[0],p2[1]]]
+p3_loc = [[p3[0],p3[1]]]
+p4_loc = [[p4[0],p4[1]]]
+p5_loc = [[p5[0],p5[1]]]
+
+# myosin conc. on spoke (variable)
+myosin = np.array([[const.myo0,const.myo0]])
+# initial length of spoke
+l0 = np.array([[distance.euclidean(origin,p0),distance.euclidean(origin,p1)]])
+# length of spoke
+length = np.array([[distance.euclidean(origin,p0),distance.euclidean(origin,p1)]])
+# force -- maybe should actually calculate initial force?
+force = np.array([[0,0]])
+
 # Time difference using discretization provided by the dde solver
 dt = np.diff(t)
-
 
 for index in range(0,len(dt)):
     # At each time step:
     if t[index] >= 0:
-        tt.append(t[index])
         # Update myosin concentration on each spoke
-        myosin = np.append(myosin,dmyosin(myosin[-1],Rm[index], length, dt[index]))
-
+        myo0 = dmyosin(myosin[-1][0],Rm[index], length[-1][0], dt[index])
+        myo1 = dmyosin(myosin[-1][1],Rm[index], length[-1][1], dt[index])
+        myosin = np.append(myosin, [[myo0,myo1]],axis=0)
+        
         # Update force
-        force = np.append(force, calc_force(length, myosin[-1])) 
-        direction = normed_direction(origin,p0)
+        force0 = calc_force(length[-1][0], myosin[-1][0]) 
+        force1 = calc_force(length[-1][1], myosin[-1][1]) 
+        force = np.append(force,[[force0,force1]],axis=0)
     
         # Update Location
-        p0_loc.append(d_pos(p0_loc[-1][0],p0_loc[-1][1],force[-1],direction,dt[index]))
-        x_loc.append(p0_loc[-1][0])
-        
+        direction0 = normed_direction(origin,p0)
+        direction1 = normed_direction(origin,p1)
+
+        p0_loc.append(d_pos(p0_loc[-1][0],p0_loc[-1][1],force[-1][0],direction0,dt[index]))
+        p1_loc.append(d_pos(p1_loc[-1][0],p1_loc[-1][1],force[-1][1],direction1,dt[index]))
+
         # update Length  
-        length = distance.euclidean(p0_loc[-1],origin) 
-    
+        length0 = distance.euclidean(p0_loc[-1],origin) 
+        length1 = distance.euclidean(p1_loc[-1],origin) 
+        length = np.append(length,[[length0,length1]],axis=0)
+
         # Write output file
-        outputWriter.writerow([t[index],p0_loc[-1][0],p0_loc[-1][1]])
- 
-        if x_loc[-1] < 0:
+        LocationWriter.writerow([t[index],p0_loc[-1][0],p0_loc[-1][1],p1_loc[-1][0],p1_loc[-1][1]])
+        BioParamsWriter.writerow([t[index],myosin[-1][0], force[-1][0],myosin[-1][1],force[-1][1]])
+
+        if p0_loc[-1][0] < 0:
             print index
             break
 
@@ -184,6 +205,7 @@ plt.show()
 ###
 
 
-outputFile.close()
+LocationFile.close()
+BioParamsFile.close()
 
 
