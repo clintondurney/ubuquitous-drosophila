@@ -106,20 +106,24 @@ dt = np.diff(t)
 for index in range(0,len(dt)):
     # At each time step:
     if t[index] >= 0:
+        
         # Update myosin concentration on each spoke
-        myo0 = dmyosin(myosin[-1][0],Rm[index], length[-1][0], dt[index])
-        myo1 = dmyosin(myosin[-1][1],Rm[index], length[-1][1], dt[index])
-        myosin = np.append(myosin, [[myo0,myo1]],axis=0)
+        temp = []
+        for i in range(0,2):
+            temp.append(dmyosin(myosin[-1][i],Rm[index], length[-1][i], dt[index]))
+        myosin = np.append(myosin, [temp],axis=0)
         
         # Update force
-        force0 = calc_force(length[-1][0], myosin[-1][0]) 
-        force1 = calc_force(length[-1][1], myosin[-1][1]) 
-        force = np.append(force,[[force0,force1]],axis=0)
+        temp = []
+        for i in range(0,2):
+            temp.append(calc_force(length[-1][i], myosin[-1][i])) 
+        force = np.append(force,[temp],axis=0)
     
         # Update Location
+        # in order to loop over this, I need to put the node locations into one list.  Can't loop over the names...
         direction0 = normed_direction(origin,p0)
         direction1 = normed_direction(origin,p1)
-
+        
         p0_loc.append(d_pos(p0_loc[-1][0],p0_loc[-1][1],force[-1][0],direction0,dt[index]))
         p1_loc.append(d_pos(p1_loc[-1][0],p1_loc[-1][1],force[-1][1],direction1,dt[index]))
 
