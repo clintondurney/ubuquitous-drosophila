@@ -29,11 +29,11 @@ from scipy.spatial import distance
 # initialize output files
 LocationFile = open('Location.csv','w')
 LocationWriter = csv.writer(LocationFile, delimiter='\t')
-LocationWriter.writerow(["time","x_loc_0","y_loc_0","x_loc_1","y_loc_1"])
+LocationWriter.writerow(["time","x_0","y_0","x_1","y_1","x_2","y_2","x_3","y_3","x_4","y_4","x_5","y_5"])
 
 BioParamsFile = open('BioParams.csv','w')
 BioParamsWriter = csv.writer(BioParamsFile,delimiter='\t')
-BioParamsWriter.writerow(["time","myosin0","Force0","myosin1","Force1"])
+BioParamsWriter.writerow(["time","myo0","myo1","myo2","myo3","myo4","myo5", "force0","force1","force2","force3","force4","force5"])
 
 num_cells = 1       # number of cells
 
@@ -118,15 +118,11 @@ for index in range(0,len(dt)):
     if t[index] >= 0:
         
         # Update myosin concentration on each spoke
-        temp = []
-        for i in range(0,6):
-            temp.append(dmyosin(myosin[-1][i],Rm[index], length[-1][i], dt[index]))
+        temp = [dmyosin(myosin[-1][i],Rm[index], length[-1][i], dt[index]) for i in range(0,6)]
         myosin = np.append(myosin, [temp],axis=0)
         
         # Update force
-        temp = []
-        for i in range(0,6):
-            temp.append(calc_force(length[-1][i], myosin[-1][i])) 
+        temp = [calc_force(length[-1][i], myosin[-1][i]) for i in range(0,6)] 
         force = np.append(force,[temp],axis=0)
     
         # Update Location
@@ -136,14 +132,22 @@ for index in range(0,len(dt)):
             node_loc[i].append(d_pos(node_loc[i][-1][0],node_loc[i][-1][1],force[-1][i],direction,dt[index]))
 
         # update Length  
-        temp = []
-        for i in range(0,6):
-            temp.append(distance.euclidean(node_loc[i][-1][:],origin))
+        temp = [distance.euclidean(node_loc[i][-1][:],origin) for i in range(0,6)]
         length = np.append(length, [temp], axis=0)    
 
         # Write output file
-        LocationWriter.writerow([t[index],node_loc[0][-1][0],node_loc[0][-1][1],node_loc[1][-1][0],node_loc[1][-1][1]])
-        BioParamsWriter.writerow([t[index],myosin[-1][0], force[-1][0],myosin[-1][1],force[-1][1]])
+        LocationWriter.writerow([t[index], 
+            node_loc[0][-1][0], node_loc[0][-1][1], 
+            node_loc[1][-1][0], node_loc[1][-1][1],
+            node_loc[2][-1][0], node_loc[2][-1][1],
+            node_loc[3][-1][0], node_loc[3][-1][1],
+            node_loc[4][-1][0], node_loc[4][-1][1],
+            node_loc[5][-1][0], node_loc[5][-1][1] ] )
+
+        BioParamsWriter.writerow([t[index], myosin[-1][0], myosin[-1][1],
+            myosin[-1][2], myosin[-1][3], myosin[-1][4], myosin[-1][5], 
+            force[-1][0], force[-1][1], force[-1][2], force[-1][3],
+            force[-1][4], force[-1][5]])
 
 
 #############################################
