@@ -15,13 +15,13 @@ from scipy.spatial import distance
 # Author: Clinton H. Durney
 # Email: cdurney@math.ubc.ca
 #
-# Last Edit: 03/05/16
+# Last Edit: 03/11/16
 #
 # To Do:    
 #           write loop instead of explicit calcs
-#           Update loop to account for all spokes
-#           Write other script to parse the output
+#               *update to list comprehensions
 #           Update spatial distribution of signal
+#           Add in edges - Force
 #
 #
 ###########
@@ -91,14 +91,24 @@ p3_loc = [[p3[0],p3[1]]]
 p4_loc = [[p4[0],p4[1]]]
 p5_loc = [[p5[0],p5[1]]]
 
+node_loc = [p0_loc,p1_loc,p2_loc,p3_loc,p4_loc,p5_loc]
+# node_loc[node][history][x or y]
+
 # myosin conc. on spoke (variable)
-myosin = np.array([[const.myo0,const.myo0]])
+myosin = np.array([[const.myo0 for i in range(0,6)]])
+# myosin[history][spoke]
+
 # initial length of spoke
-l0 = np.array([[distance.euclidean(origin,p0),distance.euclidean(origin,p1)]])
+l0 = np.array([ [distance.euclidean(origin,node_loc[i][-1][:]) for i in range(0,6)] ] )
+# l0[history][spoke]
+
 # length of spoke
-length = np.array([[distance.euclidean(origin,p0),distance.euclidean(origin,p1)]])
+length = np.array( [ [distance.euclidean(origin,node_loc[i][-1][:]) for i in range(0,6) ] ] )
+# length = [history][spoke]
+
 # force -- maybe should actually calculate initial force?
-force = np.array([[0,0]])
+force = np.array([[0 for i in range(0,6)]])
+# force[history,spoke]
 
 # Time difference using discretization provided by the dde solver
 dt = np.diff(t)
@@ -109,36 +119,31 @@ for index in range(0,len(dt)):
         
         # Update myosin concentration on each spoke
         temp = []
-        for i in range(0,2):
+        for i in range(0,6):
             temp.append(dmyosin(myosin[-1][i],Rm[index], length[-1][i], dt[index]))
         myosin = np.append(myosin, [temp],axis=0)
         
         # Update force
         temp = []
-        for i in range(0,2):
+        for i in range(0,6):
             temp.append(calc_force(length[-1][i], myosin[-1][i])) 
         force = np.append(force,[temp],axis=0)
     
         # Update Location
         # in order to loop over this, I need to put the node locations into one list.  Can't loop over the names...
-        direction0 = normed_direction(origin,p0)
-        direction1 = normed_direction(origin,p1)
-        
-        p0_loc.append(d_pos(p0_loc[-1][0],p0_loc[-1][1],force[-1][0],direction0,dt[index]))
-        p1_loc.append(d_pos(p1_loc[-1][0],p1_loc[-1][1],force[-1][1],direction1,dt[index]))
+        for i in range(0,6):
+            direction = normed_direction(origin,node_loc[i][-1][:])
+            node_loc[i].append(d_pos(node_loc[i][-1][0],node_loc[i][-1][1],force[-1][i],direction,dt[index]))
 
         # update Length  
-        length0 = distance.euclidean(p0_loc[-1],origin) 
-        length1 = distance.euclidean(p1_loc[-1],origin) 
-        length = np.append(length,[[length0,length1]],axis=0)
+        temp = []
+        for i in range(0,6):
+            temp.append(distance.euclidean(node_loc[i][-1][:],origin))
+        length = np.append(length, [temp], axis=0)    
 
         # Write output file
-        LocationWriter.writerow([t[index],p0_loc[-1][0],p0_loc[-1][1],p1_loc[-1][0],p1_loc[-1][1]])
+        LocationWriter.writerow([t[index],node_loc[0][-1][0],node_loc[0][-1][1],node_loc[1][-1][0],node_loc[1][-1][1]])
         BioParamsWriter.writerow([t[index],myosin[-1][0], force[-1][0],myosin[-1][1],force[-1][1]])
-
-        if p0_loc[-1][0] < 0:
-            print index
-            break
 
 
 #############################################
@@ -147,59 +152,59 @@ for index in range(0,len(dt)):
 #                                           #
 #############################################
 
-plt.figure(5)
-plt.title("$Myosin$")
-plt.plot(tt, myosin,'r')
-plt.xlim([tt[0],tt[-1]])
-plt.xlabel("Time (s)")
-plt.ylabel("Myosin Concentration$")
-
-plt.figure(6)
-plt.title("Force")
-plt.plot(tt,force)
-plt.xlim([tt[0],tt[-1]])
-plt.xlabel("Time (s)")
-plt.ylabel("Force (N)")
-
-plt.figure(7)
-plt.title("Spoke Location")
-plt.plot(tt,x_loc)
-plt.xlim([tt[0],tt[-1]])
-plt.xlabel("Time (s)")
-plt.ylabel("Location")
-
-# Create plots of biochemical parameters
-plt.figure(1)
-plt.title("$Reg_m$")
-plt.plot(t, Rm,'r')
-plt.xlim([t[0],t[-1]])
-plt.xlabel("Time (s)")
-plt.ylabel("$Reg_m$")
-
-plt.figure(2)
-plt.title("$aPKC_m$")
-plt.plot(t,Am,'g')
-plt.xlim([t[0],t[-1]])
-plt.xlabel("Time (s)")
-plt.ylabel("$aPKC_m$")
-
-plt.figure(3)
-plt.title("$Baz_m$")
-plt.plot(t,Bm,'b')
-plt.xlim([t[0],t[-1]])
-plt.xlabel("Time (s)")
-plt.ylabel("$Baz_m$")
-
-plt.figure(4)
-plt.title("Medial Reg, aPKC and Baz vs. Time")
-plt.xlim([t[0],t[-1]])
-plt.plot(t, Rm/np.amax(Rm),'r', label = "$Reg_m$")
-plt.plot(t,Am/np.amax(Am), 'g', label = "$aPKC_m$")
-plt.plot(t,Bm/np.amax(Bm), 'b', label = "$Baz_m$")
-plt.legend()
-
-plt.show()
-
+#plt.figure(5)
+#plt.title("$Myosin$")
+#plt.plot(tt, myosin,'r')
+#plt.xlim([tt[0],tt[-1]])
+#plt.xlabel("Time (s)")
+#plt.ylabel("Myosin Concentration$")
+#
+#plt.figure(6)
+#plt.title("Force")
+#plt.plot(tt,force)
+#plt.xlim([tt[0],tt[-1]])
+#plt.xlabel("Time (s)")
+#plt.ylabel("Force (N)")
+#
+#plt.figure(7)
+#plt.title("Spoke Location")
+#plt.plot(tt,x_loc)
+#plt.xlim([tt[0],tt[-1]])
+#plt.xlabel("Time (s)")
+#plt.ylabel("Location")
+#
+## Create plots of biochemical parameters
+#plt.figure(1)
+#plt.title("$Reg_m$")
+#plt.plot(t, Rm,'r')
+#plt.xlim([t[0],t[-1]])
+#plt.xlabel("Time (s)")
+#plt.ylabel("$Reg_m$")
+#
+#plt.figure(2)
+#plt.title("$aPKC_m$")
+#plt.plot(t,Am,'g')
+#plt.xlim([t[0],t[-1]])
+#plt.xlabel("Time (s)")
+#plt.ylabel("$aPKC_m$")
+#
+#plt.figure(3)
+#plt.title("$Baz_m$")
+#plt.plot(t,Bm,'b')
+#plt.xlim([t[0],t[-1]])
+#plt.xlabel("Time (s)")
+#plt.ylabel("$Baz_m$")
+#
+#plt.figure(4)
+#plt.title("Medial Reg, aPKC and Baz vs. Time")
+#plt.xlim([t[0],t[-1]])
+#plt.plot(t, Rm/np.amax(Rm),'r', label = "$Reg_m$")
+#plt.plot(t,Am/np.amax(Am), 'g', label = "$aPKC_m$")
+#plt.plot(t,Bm/np.amax(Bm), 'b', label = "$Baz_m$")
+#plt.legend()
+#
+#plt.show()
+#
 # Example of manually changing the coordinates of point and replotting
 #G.node[0]['pos'] = (0.75,0)
 #G.node[1]['pos'] = (np.cos(np.pi/3)-.2,np.sin(np.pi/3)-.2) 
