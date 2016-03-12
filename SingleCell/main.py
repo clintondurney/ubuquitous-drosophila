@@ -49,21 +49,6 @@ p4 = (np.cos(4*np.pi/3),np.sin(4*np.pi/3))
 p5 = (np.cos(5*np.pi/3),np.sin(5*np.pi/3))
 nodes = [p0,p1,p2,p3,p4,p5]
 
-# initalize Graph G of nodes and edges
-#G.add_node('medial',{'pos':origin, 'cell':1})
-#
-#i = 0
-#for node in nodes:
-#    G.add_node(i,{'pos':node,'cell':1})
-#    G.add_edge('medial',i,{'name':1})
-#    i += 1
-#G.add_path([0,1,2,3,4,5,0])
-#
-## Initial plot of cell
-#pos = nx.get_node_attributes(G,'pos')
-#nx.draw(G,pos)
-#plt.show()
-
 # Initial conditions of Biochemical parameters
 Ac = const.Ac0
 Am = const.Am0
@@ -156,26 +141,6 @@ for index in range(0,len(dt)):
 #                                           #
 #############################################
 
-#plt.figure(5)
-#plt.title("$Myosin$")
-#plt.plot(tt, myosin,'r')
-#plt.xlim([tt[0],tt[-1]])
-#plt.xlabel("Time (s)")
-#plt.ylabel("Myosin Concentration$")
-#
-#plt.figure(6)
-#plt.title("Force")
-#plt.plot(tt,force)
-#plt.xlim([tt[0],tt[-1]])
-#plt.xlabel("Time (s)")
-#plt.ylabel("Force (N)")
-#
-#plt.figure(7)
-#plt.title("Spoke Location")
-#plt.plot(tt,x_loc)
-#plt.xlim([tt[0],tt[-1]])
-#plt.xlabel("Time (s)")
-#plt.ylabel("Location")
 #
 ## Create plots of biochemical parameters
 #plt.figure(1)
@@ -209,14 +174,6 @@ for index in range(0,len(dt)):
 #
 #plt.show()
 #
-# Example of manually changing the coordinates of point and replotting
-#G.node[0]['pos'] = (0.75,0)
-#G.node[1]['pos'] = (np.cos(np.pi/3)-.2,np.sin(np.pi/3)-.2) 
-#pos = nx.get_node_attributes(G,'pos')
-#nx.draw(G,pos)
-#plt.show()
-###
-
 
 LocationFile.close()
 BioParamsFile.close()
