@@ -18,11 +18,8 @@ from scipy.spatial import distance
 # Last Edit: 03/11/16
 #
 # To Do:    
-#           write loop instead of explicit calcs
-#               *update to list comprehensions
 #           Update spatial distribution of signal
 #           Add in edges - Force
-#
 #
 ###########
 
