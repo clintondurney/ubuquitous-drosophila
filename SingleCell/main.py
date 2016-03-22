@@ -26,7 +26,7 @@ from scipy.spatial import distance
 # initialize output files
 LocationFile = open('Location.csv','w')
 LocationWriter = csv.writer(LocationFile, delimiter='\t')
-LocationWriter.writerow(["time","x_0","y_0","x_1","y_1","x_2","y_2","x_3","y_3","x_4","y_4","x_5","y_5"])
+LocationWriter.writerow(["time","x_0","y_0","x_1","y_1","x_2","y_2","x_3","y_3","x_4","y_4","x_5","y_5","area"])
 
 BioParamsFile = open('BioParams.csv','w')
 BioParamsWriter = csv.writer(BioParamsFile,delimiter='\t')
@@ -109,9 +109,16 @@ for index in range(0,len(dt)):
     
         # Update Location
         # in order to loop over this, I need to put the node locations into one list.  Can't loop over the names...
+        node_loc_temp = []
         for i in range(0,6):
             direction = normed_direction(origin,node_loc[i][-1][:])
-            node_loc[i].append(d_pos(node_loc[i][-1][0],node_loc[i][-1][1],force[-1][i],direction,dt[index]))
+            node_loc_temp.append(d_pos(node_loc[i][-1][0],node_loc[i][-1][1],force[-1][i],direction,dt[index]))
+        
+        for i in range(0,6):
+            node_loc[i].append(node_loc_temp[i])
+
+        points = [(node_loc[i][-1][0],node_loc[i][-1][1]) for i in range(0,6)] 
+        area = CellArea(points)
 
         # update Length  
         temp = [distance.euclidean(node_loc[i][-1][:],origin) for i in range(0,6)]
@@ -124,7 +131,7 @@ for index in range(0,len(dt)):
             node_loc[2][-1][0], node_loc[2][-1][1],
             node_loc[3][-1][0], node_loc[3][-1][1],
             node_loc[4][-1][0], node_loc[4][-1][1],
-            node_loc[5][-1][0], node_loc[5][-1][1] ] )
+            node_loc[5][-1][0], node_loc[5][-1][1], area ] )
 
         BioParamsWriter.writerow([t[index], myosin[-1][0], myosin[-1][1],
             myosin[-1][2], myosin[-1][3], myosin[-1][4], myosin[-1][5], 
