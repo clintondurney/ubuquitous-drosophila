@@ -95,7 +95,7 @@ force = np.array([[0 for i in range(0,6)]])
 # Time difference using discretization provided by the dde solver
 dt = np.diff(t)
 
-for index in range(0,len(dt)):
+for index in range(1,len(dt)):
     # At each time step:
     if t[index] >= 0:
         
@@ -108,7 +108,6 @@ for index in range(0,len(dt)):
         force = np.append(force,[temp],axis=0)
     
         # Update Location
-        # in order to loop over this, I need to put the node locations into one list.  Can't loop over the names...
         node_loc_temp = []
         for i in range(0,6):
             direction = normed_direction(origin,node_loc[i][-1][:])
@@ -117,6 +116,7 @@ for index in range(0,len(dt)):
         for i in range(0,6):
             node_loc[i].append(node_loc_temp[i])
 
+        # Calculate area for output file
         points = [(node_loc[i][-1][0],node_loc[i][-1][1]) for i in range(0,6)] 
         area = CellArea(points)
 
