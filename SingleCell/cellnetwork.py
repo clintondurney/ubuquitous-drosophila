@@ -8,10 +8,12 @@ import numpy as np
 # keeping this separate for now (as a document of something that works), 
 # but it has now been implemented into main.py
 #
+# Now playing with it to see what I can make networkx do.
+#
 # Author: Clinton H. Durney
 # Email: cdurney@math.ubc.ca
 #
-# Last Edit: 13/11/15
+# Last Edit: 4/23/16
 #########   
 
 def plot(origin,p0,p1,p2,p3,p4,p5):

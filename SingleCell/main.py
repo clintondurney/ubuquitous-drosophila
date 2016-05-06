@@ -139,46 +139,6 @@ for index in range(1,len(dt)):
             force[-1][4], force[-1][5]])
 
 
-#############################################
-#                                           #
-# Plotting                                  #
-#                                           #
-#############################################
-
-#
-## Create plots of biochemical parameters
-#plt.figure(1)
-#plt.title("$Reg_m$")
-#plt.plot(t, Rm,'r')
-#plt.xlim([t[0],t[-1]])
-#plt.xlabel("Time (s)")
-#plt.ylabel("$Reg_m$")
-#
-#plt.figure(2)
-#plt.title("$aPKC_m$")
-#plt.plot(t,Am,'g')
-#plt.xlim([t[0],t[-1]])
-#plt.xlabel("Time (s)")
-#plt.ylabel("$aPKC_m$")
-#
-#plt.figure(3)
-#plt.title("$Baz_m$")
-#plt.plot(t,Bm,'b')
-#plt.xlim([t[0],t[-1]])
-#plt.xlabel("Time (s)")
-#plt.ylabel("$Baz_m$")
-#
-#plt.figure(4)
-#plt.title("Medial Reg, aPKC and Baz vs. Time")
-#plt.xlim([t[0],t[-1]])
-#plt.plot(t, Rm/np.amax(Rm),'r', label = "$Reg_m$")
-#plt.plot(t,Am/np.amax(Am), 'g', label = "$aPKC_m$")
-#plt.plot(t,Bm/np.amax(Bm), 'b', label = "$Baz_m$")
-#plt.legend()
-#
-#plt.show()
-#
-
 LocationFile.close()
 BioParamsFile.close()
 

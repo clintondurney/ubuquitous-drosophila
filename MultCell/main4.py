@@ -22,8 +22,9 @@ from scipy.spatial import distance
 ###########
 
 G = nx.Graph()
+H = nx.Graph()
 
-r = const.initialspokelength
+r = const.l0
 
 # Left most cell set up
 origin = (0,0)
@@ -88,18 +89,17 @@ for node in nodes:
     i += 1
     
 # edges that are only passively elastic
-G.add_path([1,2,3,4,5,6,1],beta=0)
-G.add_path([1,17,16,8,9,2],beta=0)
-G.add_path([6,11,12,18,17,1],beta=0)
-G.add_path([18,19,14,15,16],beta=0)
+G.add_path([1,2,3,4,5,6,1],beta=0,myosin=0)
+G.add_path([1,17,16,8,9,2],beta=0,myosin=0)
+G.add_path([6,11,12,18,17,1],beta=0,myosin=0)
+G.add_path([18,19,14,15,16],beta=0,myosin=0)
     
 # edges that have active force component
-G.add_edges_from([(0,1),(0,2),(0,3),(0,4),(0,5),(0,6)],beta=10,myosin=const.myo0)
-G.add_edges_from([(7,16),(7,8),(7,9),(7,2),(7,1),(7,17)],beta=10,myosin=const.myo0)
-G.add_edges_from([(10,18),(10,17),(10,1),(10,6),(10,11),(10,12)],beta=10,myosin=const.myo0)
-G.add_edges_from([(13,14),(13,15),(13,16),(13,17),(13,18),(13,19)],beta=10,myosin=const.myo0)
+G.add_edges_from([(0,1),(0,2),(0,3),(0,4),(0,5),(0,6)],beta=const.beta,myosin=const.myo0)
+G.add_edges_from([(7,16),(7,8),(7,9),(7,2),(7,1),(7,17)],beta=const.beta,myosin=const.myo0)
+G.add_edges_from([(10,18),(10,17),(10,1),(10,6),(10,11),(10,12)],beta=const.beta,myosin=const.myo0)
+G.add_edges_from([(13,14),(13,15),(13,16),(13,17),(13,18),(13,19)],beta=const.beta,myosin=const.myo0)
     
-
 history = [G.copy()]
 
 # Initial conditions of Biochemical parameters
@@ -119,8 +119,8 @@ dt = np.diff(t)
 
 for index in range(1,len(dt)):
     if t[index] >= 0:
-        
-        # Update myosin concentration on each spoke
+        H = G.copy() 
+        ## Update myosin concentration on each spoke ##
         for center in G.nodes_iter(data=True):
             if center[1]['center']==True:
                 for neighbor in G.neighbors(center[0]):
@@ -129,13 +129,47 @@ for index in range(1,len(dt)):
                     G[center[0]][neighbor]['myosin'] = dmyosin(myosin_current, Rm[index], length, dt[index])
 
 
-        # Update force
-        for point in G.nodes_iter(data=True):
+        ## Update force ##
+        # iterate over all nodes in graph
+        for point in G.nodes_iter():
+    	    # iterate over all neighbors of node
+    	    total_force = [0,0]
+    	    for neighbor in G.neighbors(point):
+                # calculate the unit vector from node to neighbor
+                dir_vector = unit_vector(H.node[point]['pos'],H.node[neighbor]['pos'])
+                # calculate magnitude of force
+                length = distance.euclidean(H.node[point]['pos'],H.node[neighbor]['pos'])
+                mag_force = calc_force(length,G[point][neighbor]['myosin'])
+                total_force = np.sum([total_force,mag_force*np.array(dir_vector)],axis=0)
+            # update location using force
+            if point != 4 and point != 14:
+                G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt[index])
 
-    
-        # Update location
+        if index % 100 == 0:
+            history.append(G.copy())
+        if index % 1000  == 0:
+            print t[index]
+            for i in range(0,len(history)):
+                plt.clf()
+                pos = nx.get_node_attributes(history[i],'pos')
 
-        
+                nx.draw(history[i],pos,with_labels=True)
+                plt.xlim(-2,5)
+                plt.ylim(-2,2)
+                plt.axis("on")
+                plt.grid("on")
+
+                # plt.show()
+                plt.savefig('tmp%03d.png'%i)
+
+
+
+
+
+
+
+
+
 
 
 

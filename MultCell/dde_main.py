@@ -142,21 +142,21 @@ def dde_solver(t_i,Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
     return(t,Ac,Am,Bc,Bm,Rm,AB,AR)
 
 ###############
-def normed_direction(A,B):
-    # Calculate the normed vector BA
+def unit_vector(A,B):
+    # Calculate the unit vector from A to B 
 
     dist = distance.euclidean(A,B)
 
-    return ((A[0]-B[0])/dist,(A[1]-B[1])/dist)
+    return ((B[0]-A[0])/dist,(B[1]-A[1])/dist)
 
 ###############
-def d_pos(x_old,y_old,f,direction,dt):
+def d_pos(position,force,dt):
     
-    x_new = x_old + (dt/const.eta)*f*direction[0]
+    x_new = position[0] + (dt/const.eta)*force[0]
 
-    y_new = y_old + (dt/const.eta)*f*direction[1]
+    y_new = position[1] + (dt/const.eta)*force[1]
 
-    return [x_new,y_new]
+    return (x_new,y_new)
 
 
 ###############
@@ -174,7 +174,7 @@ def kminus(myo,length):
 
 ################
 def fun(y,signal,length):
-    
+    # needs updated for geo distribution
     geo_frac = 1                # evenly distributed to start (single cell)
     
     return(const.k_plus*signal*geo_frac - kminus(y,length)*y)
