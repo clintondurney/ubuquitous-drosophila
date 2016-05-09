@@ -16,7 +16,7 @@ k_plus = 2.5*10**(-3)
 
 mu = 1.0
 l0 = 1.0
-beta = 10**(-4)                 # was given (10,-5) but that doesn't generate a force 
+beta = 10**(-3)                 # was given (10,-5) but that doesn't generate a force 
 eta = 100.0
 
 k1 = 0.000003          

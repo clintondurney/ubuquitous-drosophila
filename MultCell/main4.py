@@ -1,3 +1,4 @@
+import pdb
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
@@ -38,7 +39,7 @@ nodes = [p0,p1,p2,p3,p4,p5]
    
 nodes = [p0,p1,p2,p3,p4,p5]
 i = 0
-G.add_node(i,pos=origin, center=True)
+G.add_node(i,pos=origin, center=True, phase_angle=0)
 i += 1 
 for node in nodes:
     G.add_node(i,pos=node,center=False)
@@ -51,7 +52,7 @@ p2 = (origin[0] + r*np.cos(2*np.pi/3), origin[1] + r*np.sin(2*np.pi/3))
     
 nodes = [p1,p2]
     
-G.add_node(i,pos=origin,center=True)
+G.add_node(i,pos=origin,center=True, phase_angle = (3/2.0)*np.pi)
 i +=1
     
 for node in nodes:
@@ -64,7 +65,7 @@ p4 = (origin[0] + r*np.cos(4*np.pi/3), origin[1] + r*np.sin(4*np.pi/3))
 p5 = (origin[0] + r*np.cos(5*np.pi/3), origin[1] + r*np.sin(5*np.pi/3))
 nodes = [p4,p5]
     
-G.add_node(i,pos=origin,center=True)
+G.add_node(i,pos=origin,center=True,phase_angle = (1/2.0)*np.pi)
 i+=1
     
 for node in nodes:
@@ -81,7 +82,7 @@ p4 = (origin[0] + r*np.cos(4*np.pi/3), origin[1] + r*np.sin(4*np.pi/3))
 p5 = (origin[0] + r*np.cos(5*np.pi/3), origin[1] + r*np.sin(5*np.pi/3))
 nodes = [p0,p1,p2,p3,p4,p5]
     
-G.add_node(i,pos=origin,center=True)
+G.add_node(i,pos=origin,center=True,phase_angle = np.pi)
 i+=1
     
 for node in nodes:
@@ -99,7 +100,7 @@ G.add_edges_from([(0,1),(0,2),(0,3),(0,4),(0,5),(0,6)],beta=const.beta,myosin=co
 G.add_edges_from([(7,16),(7,8),(7,9),(7,2),(7,1),(7,17)],beta=const.beta,myosin=const.myo0)
 G.add_edges_from([(10,18),(10,17),(10,1),(10,6),(10,11),(10,12)],beta=const.beta,myosin=const.myo0)
 G.add_edges_from([(13,14),(13,15),(13,16),(13,17),(13,18),(13,19)],beta=const.beta,myosin=const.myo0)
-    
+
 history = [G.copy()]
 
 # Initial conditions of Biochemical parameters
@@ -126,7 +127,7 @@ for index in range(1,len(dt)):
                 for neighbor in G.neighbors(center[0]):
                     length = distance.euclidean(G.node[center[0]]['pos'],G.node[neighbor]['pos'])
                     myosin_current = G[center[0]][neighbor]['myosin']
-                    G[center[0]][neighbor]['myosin'] = dmyosin(myosin_current, Rm[index], length, dt[index])
+                    G[center[0]][neighbor]['myosin'] = dmyosin(myosin_current, Rm[index], length, dt[index])*np.sin(t[index]+center[1]['phase_angle'])**2
 
 
         ## Update force ##
@@ -141,8 +142,8 @@ for index in range(1,len(dt)):
                 length = distance.euclidean(H.node[point]['pos'],H.node[neighbor]['pos'])
                 mag_force = calc_force(length,G[point][neighbor]['myosin'])
                 total_force = np.sum([total_force,mag_force*np.array(dir_vector)],axis=0)
-            # update location using force
-            if point != 4 and point != 14:
+            
+            if point not in [2,3,4,5,6,11,12,18,19,14,15,16,8,9]:
                 G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt[index])
 
         if index % 100 == 0:
@@ -158,17 +159,9 @@ for index in range(1,len(dt)):
                 plt.ylim(-2,2)
                 plt.axis("on")
                 plt.grid("on")
-
+                
                 # plt.show()
                 plt.savefig('tmp%03d.png'%i)
-
-
-
-
-
-
-
-
 
 
 
