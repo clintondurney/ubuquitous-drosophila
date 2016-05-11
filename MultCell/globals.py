@@ -16,7 +16,7 @@ k_plus = 2.5*10**(-3)
 
 mu = 1.0
 l0 = 1.0
-beta = 10**(-3)                 # was given (10,-5) but that doesn't generate a force 
+beta = 10 #10**(-1)                 # was given (10,-5) but that doesn't generate a force 
 eta = 100.0
 
 k1 = 0.000003          
@@ -35,7 +35,7 @@ Bm0 = 0.0
 Rm0 = 500.0
 AB0 = 0.0
 AR0 = 0.0
-myo0 = 6000.0 
+myo0 = 5.0 
 
 
 

@@ -5,7 +5,7 @@ import numpy as np
 import globals as const
 from dde_main import *
 from scipy.spatial import distance
-
+import csv
 
 ###########
 #
@@ -15,12 +15,17 @@ from scipy.spatial import distance
 # Author: Clinton H. Durney
 # Email: cdurney@math.ubc.ca
 #
-# Last Edit: 04/28/16
+# Last Edit: 5/11/16
 #
 # To Do:    
 #
 #
 ###########
+
+# Set-up output file
+BioParamsFile = open('BioParams.csv','w')
+BioParamsWriter = csv.writer(BioParamsFile,delimiter='\t')
+BioParamsWriter.writerow(["time", "Reg","myo0_1","myo1_17","myo1_7","myo17_13","myo1_10","myo10_17"])
 
 G = nx.Graph()
 H = nx.Graph()
@@ -118,7 +123,7 @@ tf = 6000
 
 dt = np.diff(t)
 
-for index in range(1,len(dt)):
+for index in range(500000,len(dt)):
     if t[index] >= 0:
         H = G.copy() 
         ## Update myosin concentration on each spoke ##
@@ -127,7 +132,7 @@ for index in range(1,len(dt)):
                 for neighbor in G.neighbors(center[0]):
                     length = distance.euclidean(G.node[center[0]]['pos'],G.node[neighbor]['pos'])
                     myosin_current = G[center[0]][neighbor]['myosin']
-                    G[center[0]][neighbor]['myosin'] = dmyosin(myosin_current, Rm[index], length, dt[index])*np.sin(t[index]+center[1]['phase_angle'])**2
+                    G[center[0]][neighbor]['myosin'] = dmyosin(myosin_current, Rm[index], length, dt[index])*np.sin(t[index]*(np.pi/230.0)+center[1]['phase_angle'])**2
 
 
         ## Update force ##
@@ -147,9 +152,14 @@ for index in range(1,len(dt)):
                 G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt[index])
 
         if index % 100 == 0:
-            history.append(G.copy())
-        if index % 1000  == 0:
             print t[index]
+            history.append(G.copy())
+            
+            BioParamsWriter.writerow([t[index], Rm[index], G[0][1]['myosin'], G[1][17]['myosin'], G[1][7]['myosin'], G[17][13]['myosin'],
+                G[1][10]['myosin'],G[10][17]['myosin']])
+
+
+        if index % 3000  == 0:
             for i in range(0,len(history)):
                 plt.clf()
                 pos = nx.get_node_attributes(history[i],'pos')
