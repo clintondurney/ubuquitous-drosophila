@@ -57,7 +57,7 @@ p2 = (origin[0] + r*np.cos(2*np.pi/3), origin[1] + r*np.sin(2*np.pi/3))
     
 nodes = [p1,p2]
     
-G.add_node(i,pos=origin,center=True, phase_angle = 10000, boundary=[16,8,9,2,1,17])
+G.add_node(i,pos=origin,center=True, phase_angle = 5000, boundary=[16,8,9,2,1,17])
 i +=1
     
 for node in nodes:
@@ -87,24 +87,104 @@ p4 = (origin[0] + r*np.cos(4*np.pi/3), origin[1] + r*np.sin(4*np.pi/3))
 p5 = (origin[0] + r*np.cos(5*np.pi/3), origin[1] + r*np.sin(5*np.pi/3))
 nodes = [p0,p1,p2,p3,p4,p5]
     
-G.add_node(i,pos=origin,center=True,phase_angle = 0, boundary=[14,15,16,17,18,19])
+G.add_node(i,pos=origin,center=True,phase_angle = 10000, boundary=[14,15,16,17,18,19])
 i+=1
     
 for node in nodes:
     G.add_node(i,pos=node,center=False)
     i += 1
+
+###########################
+origin = 1.5*2*r, 2*r*np.cos(np.pi/6)
+p0 = (origin[0] + r, origin[1] + 0)
+p1 = (origin[0] + r*np.cos(np.pi/3), origin[1] + r*np.sin(np.pi/3))
+p2 = (origin[0] + r*np.cos(2*np.pi/3), origin[1] + r*np.sin(2*np.pi/3))
+nodes = [p0,p1,p2]
+
+G.add_node(i,pos=origin,center=True,phase_angle = 0, boundary=[21,22,23,8,16,15])
+i+=1
+    
+for node in nodes:
+    G.add_node(i,pos=node,center=False)
+    i += 1
+
+origin = 1.5*2*r, -2*r*np.cos(np.pi/6)
+p0 = (origin[0] + r, origin[1] + 0)
+p4 = (origin[0] + r*np.cos(4*np.pi/3), origin[1] + r*np.sin(4*np.pi/3))
+p5 = (origin[0] + r*np.cos(5*np.pi/3), origin[1] + r*np.sin(5*np.pi/3))
+nodes = [p0,p4,p5]
+
+G.add_node(i,pos=origin,center=True,phase_angle = 10000, boundary=[25,19,18,12,26,27])
+i+=1
+    
+for node in nodes:
+    G.add_node(i,pos=node,center=False)
+    i += 1
+
+origin = 3*(1.5*r), r*np.cos(np.pi/6)
+p0 = (origin[0] + r, origin[1] + 0.0)
+p1 = (origin[0] + r*np.cos(np.pi/3), origin[1] + r*np.sin(np.pi/3))
+p5 = (origin[0] + r*np.cos(5*np.pi/3), origin[1] + r*np.sin(5*np.pi/3))
+nodes = [p0,p1,p5]
+    
+G.add_node(i,pos=origin,center=True, phase_angle = 20000, boundary=[29,30,21,15,14,31])
+i +=1
+    
+for node in nodes:
+    G.add_node(i,pos=node,center=False)
+    i += 1
+
+origin = 3*(1.5*r), -r*np.cos(np.pi/6)
+p0 = (origin[0] + r, origin[1] + 0)
+p5 = (origin[0] + r*np.cos(5*np.pi/3), origin[1] + r*np.sin(5*np.pi/3))
+nodes = [p0,p5]
+
+G.add_node(i,pos=origin,center=True, phase_angle = 0, boundary=[33,31,14,19,25,34])
+i +=1
+    
+for node in nodes:
+    G.add_node(i,pos=node,center=False)
+    i += 1
+    
+origin = 4*(1.5*r), 0
+p0 = (origin[0] + r, origin[1] + 0)
+p1 = (origin[0] + r*np.cos(np.pi/3), origin[1] + r*np.sin(np.pi/3))
+p5 = (origin[0] + r*np.cos(5*np.pi/3), origin[1] + r*np.sin(5*np.pi/3))
+nodes = [p0,p1,p5]
+
+G.add_node(i,pos=origin,center=True, phase_angle = 10000, boundary=[36,37,29,31,33,38])
+i +=1
+    
+for node in nodes:
+    G.add_node(i,pos=node,center=False)
+    i += 1
+
+###########################
+
     
 # edges that are only passively elastic
 G.add_path([1,2,3,4,5,6,1],beta=0,myosin=0, color = 'r')
 G.add_path([1,17,16,8,9,2],beta=0,myosin=0, color = 'r')
 G.add_path([6,11,12,18,17,1],beta=0,myosin=0,color = 'r')
 G.add_path([18,19,14,15,16],beta=0,myosin=0, color = 'r')
+G.add_path([15,21,22,23,8],beta=0,myosin=0,color='r')
+G.add_path([12,26,27,25,19],beta=0,myosin=0,color='r')
+G.add_path([25,34,33,31,14],beta=0,myosin=0,color='r')
+G.add_path([31,29,30,21],beta=0,myosin=0,color='r')
+G.add_path([33,38,36,37,29],beta=0,myosin=0,color='r')
     
 # edges that have active force component
 G.add_edges_from([(0,1),(0,2),(0,3),(0,4),(0,5),(0,6)],beta=const.beta,myosin=const.myo0)
 G.add_edges_from([(7,16),(7,8),(7,9),(7,2),(7,1),(7,17)],beta=const.beta,myosin=const.myo0)
 G.add_edges_from([(10,18),(10,17),(10,1),(10,6),(10,11),(10,12)],beta=const.beta,myosin=const.myo0)
 G.add_edges_from([(13,14),(13,15),(13,16),(13,17),(13,18),(13,19)],beta=const.beta,myosin=const.myo0)
+
+G.add_edges_from([(20,21),(20,22),(20,23),(20,8),(20,16),(20,15)],beta=const.beta,myosin=const.myo0)
+G.add_edges_from([(24,25),(24,19),(24,18),(24,12),(24,26),(24,27)],beta=const.beta,myosin=const.myo0)
+G.add_edges_from([(32,33),(32,31),(32,14),(32,19),(32,25),(32,34)],beta=const.beta,myosin=const.myo0)
+G.add_edges_from([(28,29),(28,30),(28,21),(28,15),(28,14),(28,31)],beta=const.beta,myosin=const.myo0)
+G.add_edges_from([(35,36),(35,37),(35,29),(35,31),(35,33),(35,38)],beta=const.beta,myosin=const.myo0)
+
 
 history = [G.copy()]
 
@@ -164,7 +244,7 @@ for index in range(160000,len(dt)):
                 mag_force = calc_force(length,G[point][neighbor]['myosin'])
                 total_force = np.sum([total_force,mag_force*np.array(dir_vector)],axis=0)
             
-            if point not in [2,3,4,5,6,11,12,18,19,14,15,16,8,9]:
+            if point not in [2,3,4,5,6,11,12,26,27,25,34,33,38,36,37,29,30,21,22,23,8,9,2]:
                 G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt[index])
 
         if index % 100 == 0:
@@ -181,10 +261,10 @@ for index in range(160000,len(dt)):
                 pos = nx.get_node_attributes(history[i],'pos')
 
                 edges,colors = zip(*nx.get_edge_attributes(history[i],'color').items())
-                nx.draw(history[i],pos,edgelist=edges,edge_color=colors,width=2)
+                nx.draw(history[i],pos, node_size = 1, edgelist=edges,edge_color=colors,width=1)
 
-                plt.xlim(-10,25)
-                plt.ylim(-12,12)
+                plt.xlim(-10,40)
+                plt.ylim(-15,15)
                 plt.axis("on")
                 plt.grid("on")
                 
