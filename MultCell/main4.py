@@ -15,7 +15,7 @@ import csv
 # Author: Clinton H. Durney
 # Email: cdurney@math.ubc.ca
 #
-# Last Edit: 5/11/16
+# Last Edit: 5/14/16
 #
 # To Do:    
 #
@@ -33,8 +33,8 @@ H = nx.Graph()
 r = const.l0
 
 # Left most cell set up
-origin = (0,0)
-p0 = (r,0)
+origin = (0.0,0.0)
+p0 = (r,0.0)
 p1 = (r*np.cos(np.pi/3),r*np.sin(np.pi/3))
 p2 = (r*np.cos(2*np.pi/3),r*np.sin(2*np.pi/3))
 p3 = (r*np.cos(3*np.pi/3),r*np.sin(3*np.pi/3))
@@ -44,7 +44,7 @@ nodes = [p0,p1,p2,p3,p4,p5]
    
 nodes = [p0,p1,p2,p3,p4,p5]
 i = 0
-G.add_node(i,pos=origin, center=True, phase_angle=0)
+G.add_node(i,pos=origin, center=True, phase_angle=0, boundary=[1,2,3,4,5,6])
 i += 1 
 for node in nodes:
     G.add_node(i,pos=node,center=False)
@@ -57,7 +57,7 @@ p2 = (origin[0] + r*np.cos(2*np.pi/3), origin[1] + r*np.sin(2*np.pi/3))
     
 nodes = [p1,p2]
     
-G.add_node(i,pos=origin,center=True, phase_angle = (3/2.0)*np.pi)
+G.add_node(i,pos=origin,center=True, phase_angle = 10000, boundary=[16,8,9,2,1,17])
 i +=1
     
 for node in nodes:
@@ -70,7 +70,7 @@ p4 = (origin[0] + r*np.cos(4*np.pi/3), origin[1] + r*np.sin(4*np.pi/3))
 p5 = (origin[0] + r*np.cos(5*np.pi/3), origin[1] + r*np.sin(5*np.pi/3))
 nodes = [p4,p5]
     
-G.add_node(i,pos=origin,center=True,phase_angle = (1/2.0)*np.pi)
+G.add_node(i,pos=origin,center=True,phase_angle = 10000, boundary=[18,17,1,6,11,12])
 i+=1
     
 for node in nodes:
@@ -87,7 +87,7 @@ p4 = (origin[0] + r*np.cos(4*np.pi/3), origin[1] + r*np.sin(4*np.pi/3))
 p5 = (origin[0] + r*np.cos(5*np.pi/3), origin[1] + r*np.sin(5*np.pi/3))
 nodes = [p0,p1,p2,p3,p4,p5]
     
-G.add_node(i,pos=origin,center=True,phase_angle = np.pi)
+G.add_node(i,pos=origin,center=True,phase_angle = 0, boundary=[14,15,16,17,18,19])
 i+=1
     
 for node in nodes:
@@ -95,10 +95,10 @@ for node in nodes:
     i += 1
     
 # edges that are only passively elastic
-G.add_path([1,2,3,4,5,6,1],beta=0,myosin=0)
-G.add_path([1,17,16,8,9,2],beta=0,myosin=0)
-G.add_path([6,11,12,18,17,1],beta=0,myosin=0)
-G.add_path([18,19,14,15,16],beta=0,myosin=0)
+G.add_path([1,2,3,4,5,6,1],beta=0,myosin=0, color = 'r')
+G.add_path([1,17,16,8,9,2],beta=0,myosin=0, color = 'r')
+G.add_path([6,11,12,18,17,1],beta=0,myosin=0,color = 'r')
+G.add_path([18,19,14,15,16],beta=0,myosin=0, color = 'r')
     
 # edges that have active force component
 G.add_edges_from([(0,1),(0,2),(0,3),(0,4),(0,5),(0,6)],beta=const.beta,myosin=const.myo0)
@@ -123,16 +123,32 @@ tf = 6000
 
 dt = np.diff(t)
 
-for index in range(500000,len(dt)):
+for index in range(160000,len(dt)):
     if t[index] >= 0:
         H = G.copy() 
         ## Update myosin concentration on each spoke ##
         for center in G.nodes_iter(data=True):
             if center[1]['center']==True:
+                # Calculate cell area
+                outer = [G.node[element]['pos'] for element in center[1]['boundary']]
+                cell_area = CellArea(outer)
+                
                 for neighbor in G.neighbors(center[0]):
+                    # Calculate area of adjacent triangles of the spoke    
+                    inner = [G.node[neighbor]['pos']]
+                    temp = list(set(G.neighbors(center[0])) & set(G.neighbors(neighbor)))
+                    inner.append(G.node[temp[0]]['pos'])
+                    inner.append(center[1]['pos'])
+                    inner.append(G.node[temp[1]]['pos'])
+                    spoke_area = CellArea(inner)
+                    geo_frac = spoke_area/cell_area
+                    
+                    # Calculate necessary parameters for dm/dt
                     length = distance.euclidean(G.node[center[0]]['pos'],G.node[neighbor]['pos'])
                     myosin_current = G[center[0]][neighbor]['myosin']
-                    G[center[0]][neighbor]['myosin'] = dmyosin(myosin_current, Rm[index], length, dt[index])*np.sin(t[index]*(np.pi/230.0)+center[1]['phase_angle'])**2
+                    
+                    #update myosin on this edge
+                    G[center[0]][neighbor]['myosin'] = dmyosin(myosin_current, geo_frac*Rm[index-center[1]['phase_angle']], length, dt[index])
 
 
         ## Update force ##
@@ -164,9 +180,11 @@ for index in range(500000,len(dt)):
                 plt.clf()
                 pos = nx.get_node_attributes(history[i],'pos')
 
-                nx.draw(history[i],pos,with_labels=True)
-                plt.xlim(-2,5)
-                plt.ylim(-2,2)
+                edges,colors = zip(*nx.get_edge_attributes(history[i],'color').items())
+                nx.draw(history[i],pos,edgelist=edges,edge_color=colors,width=2)
+
+                plt.xlim(-10,25)
+                plt.ylim(-12,12)
                 plt.axis("on")
                 plt.grid("on")
                 
