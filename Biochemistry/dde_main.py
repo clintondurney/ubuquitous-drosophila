@@ -49,7 +49,8 @@ dde = dde23(eqns=eqns, params=params)
 
 # set the simulation parameters
 # (solve from t=0 to tfinal and limit the maximum step size to 1.0) 
-dde.set_sim_params(tfinal=6000, dtmax=0.1)
+dde.set_sim_params(tfinal=6000, dtmax = 1.0 )
+
 
 # set the history of the proteins
 histfunc = {
@@ -66,15 +67,26 @@ dde.hist_from_funcs(histfunc, 500)
 # run the simulator
 dde.run()
 
+sol1 = dde.sample(0,6000,0.1)
+
 # get the solutions from the history dict
-t = dde.sol['t']
-Ac= dde.sol['Ac']
-Am= dde.sol['Am']
-Bc = dde.sol['Bc']
-Bm = dde.sol['Bm']
-Rm = dde.sol['Rm']
-AB = dde.sol['AB']
-AR = dde.sol['AR']
+# t = dde.sol['t']
+# Ac= dde.sol['Ac']
+# Am= dde.sol['Am']
+# Bc = dde.sol['Bc']
+# Bm = dde.sol['Bm']
+# Rm = dde.sol['Rm']
+# AB = dde.sol['AB']
+# AR = dde.sol['AR']
+
+t = sol1['t']
+Ac = sol1['Ac']
+Am = sol1['Am']
+Bc = sol1['Bc']
+Bm = sol1['Bm']
+Rm = sol1['Rm']
+AB = sol1['AB']
+AR = sol1['AR']
 
 # print the IC's and constants
 print("The parameters used were:")
@@ -82,6 +94,7 @@ print(json.dumps(params, indent = 1))
 
 print("The initial conditions used were: ")
 print(json.dumps(init_cond, indent = 1))
+
 
 # Create plots 
 plt.figure(1)

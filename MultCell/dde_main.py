@@ -12,7 +12,7 @@ import globals as const
 import csv
 import json
 
-def dde_initializer(Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
+def dde_initializer(Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf,dt):
     # the model equations 
     eqns = { 
         'Ac' : '-k1*Rm*Ac',
@@ -51,7 +51,7 @@ def dde_initializer(Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
 
     # set the simulation parameters
     # (solve from t=0 to t=tf and limit the maximum step size to 1.0) 
-    dde.set_sim_params(tfinal=tf, dtmax=.01)
+    dde.set_sim_params(tfinal=tf, dtmax=1.0)
 
     # set the history of the proteins
     histfunc = {
@@ -69,15 +69,27 @@ def dde_initializer(Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
     # run the simulator
     dde.run()
 
+    # Get solution at every t=0.1
+    sol1 = dde.sample(0,tf,0.1)
+
     # get the solutions from the history dict
-    t = dde.sol['t']
-    Ac= dde.sol['Ac']
-    Am= dde.sol['Am']
-    Bc = dde.sol['Bc']
-    Bm = dde.sol['Bm']
-    Rm = dde.sol['Rm']
-    AB = dde.sol['AB']
-    AR = dde.sol['AR']
+#    t = dde.sol['t']
+#    Ac= dde.sol['Ac']
+#    Am= dde.sol['Am']
+#    Bc = dde.sol['Bc']
+#    Bm = dde.sol['Bm']
+#    Rm = dde.sol['Rm']
+#    AB = dde.sol['AB']
+#    AR = dde.sol['AR']
+
+    t = sol1['t']
+    Ac= sol1['Ac']
+    Am= sol1['Am']
+    Bc = sol1['Bc']
+    Bm = sol1['Bm']
+    Rm = sol1['Rm']
+    AB = sol1['AB']
+    AR = sol1['AR']
 
     return(t,Ac,Am,Bc,Bm,Rm,AB,AR) 
 

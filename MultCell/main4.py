@@ -57,7 +57,7 @@ p2 = (origin[0] + r*np.cos(2*np.pi/3), origin[1] + r*np.sin(2*np.pi/3))
     
 nodes = [p1,p2]
     
-G.add_node(i,pos=origin,center=True, phase_angle = 5000, boundary=[16,8,9,2,1,17])
+G.add_node(i,pos=origin,center=True, phase_angle = 300, boundary=[16,8,9,2,1,17])
 i +=1
     
 for node in nodes:
@@ -70,7 +70,7 @@ p4 = (origin[0] + r*np.cos(4*np.pi/3), origin[1] + r*np.sin(4*np.pi/3))
 p5 = (origin[0] + r*np.cos(5*np.pi/3), origin[1] + r*np.sin(5*np.pi/3))
 nodes = [p4,p5]
     
-G.add_node(i,pos=origin,center=True,phase_angle = 10000, boundary=[18,17,1,6,11,12])
+G.add_node(i,pos=origin,center=True,phase_angle = 100, boundary=[18,17,1,6,11,12])
 i+=1
     
 for node in nodes:
@@ -87,7 +87,7 @@ p4 = (origin[0] + r*np.cos(4*np.pi/3), origin[1] + r*np.sin(4*np.pi/3))
 p5 = (origin[0] + r*np.cos(5*np.pi/3), origin[1] + r*np.sin(5*np.pi/3))
 nodes = [p0,p1,p2,p3,p4,p5]
     
-G.add_node(i,pos=origin,center=True,phase_angle = 10000, boundary=[14,15,16,17,18,19])
+G.add_node(i,pos=origin,center=True,phase_angle = 1000, boundary=[14,15,16,17,18,19])
 i+=1
     
 for node in nodes:
@@ -114,7 +114,7 @@ p4 = (origin[0] + r*np.cos(4*np.pi/3), origin[1] + r*np.sin(4*np.pi/3))
 p5 = (origin[0] + r*np.cos(5*np.pi/3), origin[1] + r*np.sin(5*np.pi/3))
 nodes = [p0,p4,p5]
 
-G.add_node(i,pos=origin,center=True,phase_angle = 10000, boundary=[25,19,18,12,26,27])
+G.add_node(i,pos=origin,center=True,phase_angle = 1000, boundary=[25,19,18,12,26,27])
 i+=1
     
 for node in nodes:
@@ -127,7 +127,7 @@ p1 = (origin[0] + r*np.cos(np.pi/3), origin[1] + r*np.sin(np.pi/3))
 p5 = (origin[0] + r*np.cos(5*np.pi/3), origin[1] + r*np.sin(5*np.pi/3))
 nodes = [p0,p1,p5]
     
-G.add_node(i,pos=origin,center=True, phase_angle = 20000, boundary=[29,30,21,15,14,31])
+G.add_node(i,pos=origin,center=True, phase_angle = 2000, boundary=[29,30,21,15,14,31])
 i +=1
     
 for node in nodes:
@@ -152,7 +152,7 @@ p1 = (origin[0] + r*np.cos(np.pi/3), origin[1] + r*np.sin(np.pi/3))
 p5 = (origin[0] + r*np.cos(5*np.pi/3), origin[1] + r*np.sin(5*np.pi/3))
 nodes = [p0,p1,p5]
 
-G.add_node(i,pos=origin,center=True, phase_angle = 10000, boundary=[36,37,29,31,33,38])
+G.add_node(i,pos=origin,center=True, phase_angle = 1000, boundary=[36,37,29,31,33,38])
 i +=1
     
 for node in nodes:
@@ -198,80 +198,73 @@ AB = const.AB0
 AR = const.AR0
 
 # Run dde solver for the Biochemical concentrations
+dt = 0.1
 tf = 6000
-(t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_initializer(Ac,Am,Bc,Bm,Rm,AB,AR,tf)
+(t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_initializer(Ac,Am,Bc,Bm,Rm,AB,AR,tf,dt)
 
-dt = np.diff(t)
-
-for index in range(160000,len(dt)):
-    if t[index] >= 0:
-        H = G.copy() 
-        ## Update myosin concentration on each spoke ##
-        for center in G.nodes_iter(data=True):
-            if center[1]['center']==True:
-                # Calculate cell area
-                outer = [G.node[element]['pos'] for element in center[1]['boundary']]
-                cell_area = CellArea(outer)
+for index in range(10000,len(t)):
+    H = G.copy() 
+    ## Update myosin concentration on each spoke ##
+    for center in G.nodes_iter(data=True):
+        if center[1]['center']==True:
+            # Calculate cell area
+            outer = [G.node[element]['pos'] for element in center[1]['boundary']]
+            cell_area = CellArea(outer)
                 
-                for neighbor in G.neighbors(center[0]):
-                    # Calculate area of adjacent triangles of the spoke    
-                    inner = [G.node[neighbor]['pos']]
-                    temp = list(set(G.neighbors(center[0])) & set(G.neighbors(neighbor)))
-                    inner.append(G.node[temp[0]]['pos'])
-                    inner.append(center[1]['pos'])
-                    inner.append(G.node[temp[1]]['pos'])
-                    spoke_area = CellArea(inner)
-                    geo_frac = spoke_area/cell_area
+            for neighbor in G.neighbors(center[0]):
+                # Calculate area of adjacent triangles of the spoke    
+                inner = [G.node[neighbor]['pos']]
+                temp = list(set(G.neighbors(center[0])) & set(G.neighbors(neighbor)))
+                inner.append(G.node[temp[0]]['pos'])
+                inner.append(center[1]['pos'])
+                inner.append(G.node[temp[1]]['pos'])
+                spoke_area = CellArea(inner)
+                geo_frac = spoke_area/cell_area
                     
-                    # Calculate necessary parameters for dm/dt
-                    length = distance.euclidean(G.node[center[0]]['pos'],G.node[neighbor]['pos'])
-                    myosin_current = G[center[0]][neighbor]['myosin']
+                # Calculate necessary parameters for dm/dt
+                length = distance.euclidean(G.node[center[0]]['pos'],G.node[neighbor]['pos'])
+                myosin_current = G[center[0]][neighbor]['myosin']
                     
-                    #update myosin on this edge
-                    G[center[0]][neighbor]['myosin'] = dmyosin(myosin_current, geo_frac*Rm[index-center[1]['phase_angle']], length, dt[index])
+                #update myosin on this edge
+                G[center[0]][neighbor]['myosin'] = dmyosin(myosin_current, geo_frac*Rm[index-center[1]['phase_angle']], length, dt)
 
 
-        ## Update force ##
-        # iterate over all nodes in graph
-        for point in G.nodes_iter():
-    	    # iterate over all neighbors of node
-    	    total_force = [0,0]
-    	    for neighbor in G.neighbors(point):
-                # calculate the unit vector from node to neighbor
-                dir_vector = unit_vector(H.node[point]['pos'],H.node[neighbor]['pos'])
-                # calculate magnitude of force
-                length = distance.euclidean(H.node[point]['pos'],H.node[neighbor]['pos'])
-                mag_force = calc_force(length,G[point][neighbor]['myosin'])
-                total_force = np.sum([total_force,mag_force*np.array(dir_vector)],axis=0)
-            
+    ## Update force ##
+    # iterate over all nodes in graph
+    for point in G.nodes_iter():
+    	# iterate over all neighbors of node
+    	total_force = [0,0]
+    	for neighbor in G.neighbors(point):
+            # calculate the unit vector from node to neighbor
+            dir_vector = unit_vector(H.node[point]['pos'],H.node[neighbor]['pos'])
+            # calculate magnitude of force
+            length = distance.euclidean(H.node[point]['pos'],H.node[neighbor]['pos'])
+            mag_force = calc_force(length,G[point][neighbor]['myosin'])
+            total_force = np.sum([total_force,mag_force*np.array(dir_vector)],axis=0)
+
+        if t[index] < 2500:
             if point not in [2,3,4,5,6,11,12,26,27,25,34,33,38,36,37,29,30,21,22,23,8,9,2]:
-                G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt[index])
+                G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt)
+        else:
+            if point not in [4,36]:
+                G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt)
+    
+    BioParamsWriter.writerow([t[index], Rm[index], G[0][1]['myosin'], G[1][17]['myosin'], G[1][7]['myosin'], G[17][13]['myosin'], G[1][10]['myosin'],G[10][17]['myosin']])
 
-        if index % 100 == 0:
-            print t[index]
-            history.append(G.copy())
-            
-            BioParamsWriter.writerow([t[index], Rm[index], G[0][1]['myosin'], G[1][17]['myosin'], G[1][7]['myosin'], G[17][13]['myosin'],
-                G[1][10]['myosin'],G[10][17]['myosin']])
+    if index % 10 == 0:
+        print t[index]
+        plt.clf()
+        pos = nx.get_node_attributes(G,'pos')
 
+        edges,colors = zip(*nx.get_edge_attributes(G,'color').items())
+        nx.draw(G,pos, node_size = 1, edgelist=edges,edge_color=colors,width=1)
+        
+        plt.xlim(-10,40)
+        plt.ylim(-15,15)
+        plt.axis("on")
+        plt.grid("on")
+        plt.suptitle("t = %s"%t[index])
 
-        if index % 3000  == 0:
-            for i in range(0,len(history)):
-                plt.clf()
-                pos = nx.get_node_attributes(history[i],'pos')
-
-                edges,colors = zip(*nx.get_edge_attributes(history[i],'color').items())
-                nx.draw(history[i],pos, node_size = 1, edgelist=edges,edge_color=colors,width=1)
-
-                plt.xlim(-10,40)
-                plt.ylim(-15,15)
-                plt.axis("on")
-                plt.grid("on")
-                
-                # plt.show()
-                plt.savefig('tmp%03d.png'%i)
-
-
-
+        plt.savefig('tmp%03d.png'%index)
 
 
