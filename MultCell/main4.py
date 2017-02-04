@@ -202,6 +202,7 @@ dt = 0.1
 tf = 6000
 (t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_initializer(Ac,Am,Bc,Bm,Rm,AB,AR,tf,dt)
 
+pic_num = 0 
 for index in range(10000,len(t)):
     H = G.copy() 
     ## Update myosin concentration on each spoke ##
@@ -242,16 +243,13 @@ for index in range(10000,len(t)):
             mag_force = calc_force(length,G[point][neighbor]['myosin'])
             total_force = np.sum([total_force,mag_force*np.array(dir_vector)],axis=0)
 
-        if t[index] < 2500:
-            if point not in [2,3,4,5,6,11,12,26,27,25,34,33,38,36,37,29,30,21,22,23,8,9,2]:
-                G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt)
-        else:
-            if point not in [4,36]:
-                G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt)
+        if point not in [2,3,4,5,6,11,12,26,27,25,34,33,38,36,37,29,30,21,22,23,8,9]:
+            G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt)
     
     BioParamsWriter.writerow([t[index], Rm[index], G[0][1]['myosin'], G[1][17]['myosin'], G[1][7]['myosin'], G[17][13]['myosin'], G[1][10]['myosin'],G[10][17]['myosin']])
 
     if index % 10 == 0:
+        pic_num += 1
         print t[index]
         plt.clf()
         pos = nx.get_node_attributes(G,'pos')
@@ -265,6 +263,6 @@ for index in range(10000,len(t)):
         plt.grid("on")
         plt.suptitle("t = %s"%t[index])
 
-        plt.savefig('tmp%03d.png'%index)
+        plt.savefig('tmp%03d.png'%pic_num)
 
 
