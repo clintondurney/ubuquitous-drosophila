@@ -21,20 +21,20 @@ eqns = {
 
 # define parameters
 params = {
-    'k1' : 0.001,           
-    'k2' : 0.5,
+    'k1' : 0.0001,           
+    'k2' : 0.05,
     'k3' : 0.0001,
-    'k4' : 0.001,
-    'qR' : 0.1,
+    'k4' : 0.0001,
+    'qR' : 1.1,
     'tau1' : 40.,
     'tau2' : 40.
     }
 
 # initial conditions
 init_cond = {
-    'Ac' : 1000.,
+    'Ac' : 10000.,
     'Am' : 0,
-    'Bc' : 500.,
+    'Bc' : 5000.,
     'Bm' : 0,
     'Rm' : 0.,
     'AB' : 0,
@@ -98,22 +98,25 @@ plt.figure(1)
 plt.title("$Reg_m$")
 plt.plot(t, Rm,'r')
 pl.xlim([t[0],t[-1]])
+plt.ylim(0,200)
 plt.xlabel("Time (s)")
-plt.ylabel("$\mu$M")
+plt.ylabel("Concentration ($\mu M$)")
 
 plt.figure(2)
 plt.title("$aPKC_m$")
 plt.plot(t,Am,'g')
 pl.xlim([t[0],t[-1]])
+#pl.ylim([0,200])
 plt.xlabel("Time (s)")
-plt.ylabel("$\mu$M")
+plt.ylabel("Concentration ($\mu M$)")
 
 plt.figure(3)
 plt.title("$Baz_m$")
 plt.plot(t,Bm,'b')
 pl.xlim([t[0],t[-1]])
+pl.ylim([0,50])
 plt.xlabel("Time (s)")
-plt.ylabel("$\mu$M")
+plt.ylabel("Concentration ($\mu M$)")
 
 plt.figure(4)
 plt.title("Medial Reg, aPKC, Baz")
@@ -122,7 +125,7 @@ pl.ylim([0,1])
 plt.plot(t, Rm/np.amax(Rm),'r', label = "$Reg_m$")
 plt.plot(t,Am/np.amax(Am), 'g', label = "$aPKC_m$")
 plt.plot(t,Bm/np.amax(Bm), 'b', label = "$Baz_m$")
-plt.ylabel("$\mu$M")
+plt.ylabel("Normalized Concentration")
 plt.xlabel("time (s)")
 pl.legend()
 
