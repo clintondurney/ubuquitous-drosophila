@@ -21,20 +21,20 @@ eqns = {
 
 # define parameters
 params = {
-    'k1' : 0.0001,           
-    'k2' : 0.05,
+    'k1' : 0.001,           
+    'k2' : 0.75,
     'k3' : 0.0001,
-    'k4' : 0.0001,
-    'qR' : 1.1,
-    'tau1' : 40.,
-    'tau2' : 40.
+    'k4' : 0.001,
+    'qR' : 0.04,
+    'tau1' : 50.,
+    'tau2' : 50.
     }
 
 # initial conditions
 init_cond = {
-    'Ac' : 10000.,
+    'Ac' : 400.,
     'Am' : 0,
-    'Bc' : 5000.,
+    'Bc' : 100.,
     'Bm' : 0,
     'Rm' : 0.,
     'AB' : 0,
@@ -46,7 +46,7 @@ dde = dde23(eqns=eqns, params=params)
 
 # set the simulation parameters
 # (solve from t=0 to tfinal and limit the maximum step size to 1.0) 
-dde.set_sim_params(tfinal=6000, dtmax = 1.0 )
+dde.set_sim_params(tfinal=10000, dtmax = 1.0 )
 
 
 # set the history of the proteins
@@ -64,17 +64,7 @@ dde.hist_from_funcs(histfunc, 500)
 # run the simulator
 dde.run()
 
-sol1 = dde.sample(0,6000,0.1)
-
-# get the solutions from the history dict
-# t = dde.sol['t']
-# Ac= dde.sol['Ac']
-# Am= dde.sol['Am']
-# Bc = dde.sol['Bc']
-# Bm = dde.sol['Bm']
-# Rm = dde.sol['Rm']
-# AB = dde.sol['AB']
-# AR = dde.sol['AR']
+sol1 = dde.sample(0,10000,0.1)
 
 t = sol1['t']
 Ac = sol1['Ac']
@@ -92,13 +82,12 @@ print(json.dumps(params, indent = 1, sort_keys=True))
 print("The initial conditions used were: ")
 print(json.dumps(init_cond, indent = 1, sort_keys=True))
 
-
 # Create plots 
 plt.figure(1)
 plt.title("$Reg_m$")
 plt.plot(t, Rm,'r')
 pl.xlim([t[0],t[-1]])
-plt.ylim(0,200)
+plt.ylim(0,10)
 plt.xlabel("Time (s)")
 plt.ylabel("Concentration ($\mu M$)")
 
@@ -106,7 +95,7 @@ plt.figure(2)
 plt.title("$aPKC_m$")
 plt.plot(t,Am,'g')
 pl.xlim([t[0],t[-1]])
-#pl.ylim([0,200])
+pl.ylim([0,20])
 plt.xlabel("Time (s)")
 plt.ylabel("Concentration ($\mu M$)")
 
@@ -131,6 +120,7 @@ pl.legend()
 
 plt.show()
 
-
+out = np.column_stack((t,Rm,Am,Bm))
+np.savetxt("output.csv",out,delimiter=",",header='t,Rm,Am,Bm',comments='')
 
 
