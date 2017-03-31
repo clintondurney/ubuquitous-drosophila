@@ -21,20 +21,20 @@ eqns = {
 
 # define parameters
 params = {
-    'k1' : 0.001,           
-    'k2' : 0.75,
+    'k1' : 0.1,           
+    'k2' : 30.75,
     'k3' : 0.0001,
-    'k4' : 0.001,
-    'qR' : 0.04,
-    'tau1' : 50.,
-    'tau2' : 50.
+    'k4' : 0.1,
+    'qR' : 0.0004,
+    'tau1' : 48.0,
+    'tau2' : 59.3
     }
 
 # initial conditions
 init_cond = {
-    'Ac' : 400.,
+    'Ac' : 4.,
     'Am' : 0,
-    'Bc' : 100.,
+    'Bc' : 1.,
     'Bm' : 0,
     'Rm' : 0.,
     'AB' : 0,
@@ -87,7 +87,7 @@ plt.figure(1)
 plt.title("$Reg_m$")
 plt.plot(t, Rm,'r')
 pl.xlim([t[0],t[-1]])
-plt.ylim(0,10)
+plt.ylim(0,0.1)
 plt.xlabel("Time (s)")
 plt.ylabel("Concentration ($\mu M$)")
 
@@ -95,7 +95,7 @@ plt.figure(2)
 plt.title("$aPKC_m$")
 plt.plot(t,Am,'g')
 pl.xlim([t[0],t[-1]])
-pl.ylim([0,20])
+pl.ylim([0,0.1])
 plt.xlabel("Time (s)")
 plt.ylabel("Concentration ($\mu M$)")
 
@@ -103,7 +103,7 @@ plt.figure(3)
 plt.title("$Baz_m$")
 plt.plot(t,Bm,'b')
 pl.xlim([t[0],t[-1]])
-pl.ylim([0,50])
+pl.ylim([0,0.1])
 plt.xlabel("Time (s)")
 plt.ylabel("Concentration ($\mu M$)")
 
