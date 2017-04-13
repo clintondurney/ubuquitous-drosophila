@@ -16,12 +16,12 @@ def dde_initializer(Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf,dt):
     # the model equations 
     eqns = { 
         'Ac' : '-k1*Rm*Ac',
-        'Am' : 'k1*Rm(t-tau1)*Ac(t-tau1)*Heavi(t-tau1) - k2*Am*Rm + k2*AR - k2*Am*Bm + k3*AB',
+        'Am' : 'k1*Rm(t-tau1)*Ac(t-tau1)*Heavi(t-tau1) - k2*Am*Rm + k3*AR - k2*Am*Bm + k3*AB',
         'Bc' : '-k4*Am*Bc',
         'Bm' : 'k4*Am(t-tau2)*Bc(t-tau2)*Heavi(t-tau2) - k2*Am*Bm + k3*AB',
-        'Rm' : 'qR - k2*Am*Rm + k2*AR',
+        'Rm' : 'qR - k2*Am*Rm + k3*AR',
         'AB' : 'k2*Am*Bm - k3*AB',
-        'AR' : 'k2*Am*Rm - k2*AR',
+        'AR' : 'k2*Am*Rm - k3*AR',
         }
 
     # define parameters
@@ -98,12 +98,12 @@ def dde_solver(t_i,Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf):
     # the model equations 
     eqns = { 
         'Ac' : '-k1*Rm*Ac',
-        'Am' : 'k1*Rm(t-tau1)*Ac(t-tau1)*Heavi(t-tau1) - k2*Am*Rm + k2*AR - k2*Am*Bm + k3*AB',
+        'Am' : 'k1*Rm(t-tau1)*Ac(t-tau1)*Heavi(t-tau1) - k2*Am*Rm + k3*AR - k2*Am*Bm + k3*AB',
         'Bc' : '-k4*Am*Bc',
         'Bm' : 'k4*Am(t-tau2)*Bc(t-tau2)*Heavi(t-tau2) - k2*Am*Bm + k3*AB',
-        'Rm' : 'qR - k2*Am*Rm + k2*AR',
+        'Rm' : 'qR - k2*Am*Rm + k3*AR',
         'AB' : 'k2*Am*Bm - k3*AB',
-        'AR' : 'k2*Am*Rm - k2*AR',
+        'AR' : 'k2*Am*Rm - k3*AR',
         }
 
     # define parameters
