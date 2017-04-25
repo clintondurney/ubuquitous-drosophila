@@ -22,7 +22,9 @@ import csv
 #
 ###########
 
-centers = [3,8,12,15,20,27,23,30,37,44,33,40,47,54,61,50,57,64,71,67,74,79,82,86,91]
+# Initialize tissue
+G, centers, boundary = tissue()
+H = nx.Graph()
 
 # Set-up output file: myosin
 myosinFile = open('myosin.csv','w')
@@ -40,10 +42,6 @@ cellareaWriter.writerow(header)
 regFile = open('reg.csv','w')
 regWriter = csv.writer(regFile,delimiter='\t')
 regWriter.writerow(header)
-
-# Initialize tissue
-G = tissue()
-H = nx.Graph()
 
 # Initial conditions of Biochemical parameters
 Ac = const.Ac0
@@ -130,7 +128,7 @@ for index in range(0,len(t)):
             mag_force = calc_force(length,G[point][neighbor]['myosin'])
             total_force = np.sum([total_force,mag_force*np.array(dir_vector)],axis=0)
 
-        if point not in [0,1,4,5,9,10,16,17,24,25,34,42,51,59,68,76,83,88,92,94,93,90,89,85,84,78,77,70,69,60,52,43,35,26,18,11,6,2]:
+        if point not in boundary:
             G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt)
 
     if index % 10 == 0:

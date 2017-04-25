@@ -217,99 +217,159 @@ def conc2mol(IC, cell_vol):
 
 ################
 def tissue():
-    r = const.l_initial
-    xx = np.arange(0,15*r,r)
-    yy = np.arange(0,11*r*np.sqrt(3)*0.5,r*np.sqrt(3)*0.5)
-    points = list(itertools.product(xx,yy))
+    def gen_nodes(ori):
+        nodes = []
+        for n in range(0,6):
+            nodes.append((ori[0] + r*np.cos(n*np.pi/3), ori[1] + r*np.sin(n*np.pi/3)))
+        return nodes
 
-    # shear the points
-    m = np.sqrt(3)/3
+    def add_nodes(nodes, i):
+        pos = nx.get_node_attributes(G,'pos')
+        cen_index = i-1
+        centers.append(cen_index)
+        boundary = []
+        spokes = []
+        for node in nodes:
+            add_node = True
+            for existing_node in range(0,len(pos)):
+                if distance.euclidean(pos[existing_node],node) < 10**(-7):
+                    add_node = False
+                    boundary.append(existing_node)
+                    spokes.append((cen_index,existing_node))
+                    break
 
-    new_points = []
-    for i in range(0,len(points)):
-        x = points[i][0] + m*points[i][1]
-        y = points[i][1]
-        new_points.append((x,y))  
+            if add_node == True:
+                G.add_node(i,pos=node)
+                i += 1
+                boundary.append(i-1)
+                spokes.append((cen_index,i-1))
 
-    points = new_points
+        return boundary, spokes, i
+
+    def add_spokes_edges(spokes, boundary):
+        boundary.append(boundary[0])
+        G.add_edges_from(spokes,beta=10,myosin=1000)    
+        G.add_path(boundary,beta=0,myosin=0,color='r')
+
+        return
 
     G = nx.Graph()
-    for i in range(0,len(points)):
-        G.add_node(i,pos=points[i])
 
-    section_1 = [0,1,2,3,4,11,12,13,14,22,23,24,25,33,34,35,44,45,46,55,56,66,67,77,88]
-    section_2 = [121,132,133,143,144,145,154,155,156,157]
-    section_3 = [7,8,9,10,19,20,21,31,32,43]
-    section_4 = [76,87,98,109,120,131,142,153,164,97,108,119,130,141,152,163,118,129,140,151,162,139,150,161,160]
+    r = 7.6        # initial spoke length
+    num_cells = 9  # number of cells in center row
 
-    G.remove_nodes_from(section_1)
-    G.remove_nodes_from(section_2)
-    G.remove_nodes_from(section_3)
-    G.remove_nodes_from(section_4)
+    centers = []
+    i = 0
+    # Center cell set up
+    origin = (0.0,0.0)
+    G.add_node(i,pos=origin)
+    i += 1
 
-    G = nx.convert_node_labels_to_integers(G,first_label=0)
+    nodes = gen_nodes(origin)
+    boundary, spokes, i = add_nodes(nodes,i)
+    add_spokes_edges(spokes, boundary)
 
-    G.add_path([0,1,4,7,6,2,0],beta=0,myosin=0,color='r')
-    G.add_path([6,11,18,19,13,7],beta=0,myosin=0,color='r')
-    G.add_path([18,26,35,36,28,19],beta=0,myosin=0,color='r')
-    G.add_path([4,5,9,14,13],beta=0,myosin=0,color='r')
-    G.add_path([14,21,29,28],beta=0,myosin=0,color='r')
-    G.add_path([9,10,16,22,21],beta=0,myosin=0,color='r')
-    G.add_path([22,31,39,38,29],beta=0,myosin=0,color='r')
-    G.add_path([38,46,45,36],beta=0,myosin=0,color='r')
-    G.add_path([35,43,52,53,45],beta=0,myosin=0,color='r')
-    G.add_path([31,32,24,17,16],beta=0,myosin=0,color='r')
-    G.add_path([32,41,42,34,25,24],beta=0,myosin=0,color='r')
-    G.add_path([39,48,49,41],beta=0,myosin=0,color='r')
-    G.add_path([46,55,56,48],beta=0,myosin=0,color='r')
-    G.add_path([53,62,63,55],beta=0,myosin=0,color='r')
-    G.add_path([52,60,69,70,62],beta=0,myosin=0,color='r')
-    G.add_path([70,77,78,72,63],beta=0,myosin=0,color='r')
-    G.add_path([72,73,65,56],beta=0,myosin=0,color='r')
-    G.add_path([65,66,58,49],beta=0,myosin=0,color='r')
-    G.add_path([58,59,51,42],beta=0,myosin=0,color='r')
-    G.add_path([66,75,76,68,59],beta=0,myosin=0,color='r')
-    G.add_path([73,80,81,75],beta=0,myosin=0,color='r')
-    G.add_path([78,84,85,80],beta=0,myosin=0,color='r')
-    G.add_path([81,87,88,83,76],beta=0,myosin=0,color='r')
-    G.add_path([85,89,90,87],beta=0,myosin=0,color='r')
-    G.add_path([90,93,94,92,88],beta=0,myosin=0,color='r')
+    for index in range(1,int((num_cells - 1)/2.)+1):
+        # # Step Up
+        origin = (0, np.sqrt(3)*r*index)
+        G.add_node(i,pos=origin)
+        i += 1
 
+        nodes = gen_nodes(origin)
+        boundary, spokes, i = add_nodes(nodes,i)
+        add_spokes_edges(spokes, boundary)
 
-    G.add_edges_from([(3,0),(3,1),(3,4),(3,7),(3,6),(3,2)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(8,14),(8,9),(8,5),(8,4),(8,7),(8,13)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(12,19),(12,13),(12,7),(12,6),(12,11),(12,18)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(15,22),(15,16),(15,10),(15,9),(15,14),(15,21)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(20,29),(20,21),(20,14),(20,13),(20,19),(20,28)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(27,36),(27,28),(27,19),(27,18),(27,26),(27,35)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(23,32),(23,24),(23,17),(23,16),(23,22),(23,31)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(30,39),(30,31),(30,22),(30,21),(30,29),(30,38)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(37,46),(37,38),(37,29),(37,28),(37,36),(37,45)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(44,53),(44,45),(44,36),(44,35),(44,43),(44,52)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(33,42),(33,34),(33,25),(33,24),(33,32),(33,41)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(40,49),(40,41),(40,32),(40,31),(40,39),(40,48)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(47,56),(47,48),(47,39),(47,38),(47,46),(47,55)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(54,63),(54,55),(54,46),(54,45),(54,53),(54,62)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(61,70),(61,62),(61,53),(61,52),(61,60),(61,69)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(50,59),(50,51),(50,42),(50,41),(50,49),(50,58)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(57,66),(57,58),(57,49),(57,48),(57,56),(57,65)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(64,73),(64,65),(64,56),(64,55),(64,63),(64,72)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(71,78),(71,72),(71,63),(71,62),(71,70),(71,77)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(67,76),(67,68),(67,59),(67,58),(67,66),(67,75)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(74,81),(74,75),(74,66),(74,65),(74,73),(74,80)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(79,85),(79,80),(79,73),(79,72),(79,78),(79,84)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(82,88),(82,83),(82,76),(82,75),(82,81),(82,87)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(86,90),(86,87),(86,81),(86,80),(86,85),(86,89)],beta=const.beta,myosin=const.myo0)
-    G.add_edges_from([(91,94),(91,92),(91,88),(91,87),(91,90),(91,93)],beta=const.beta,myosin=const.myo0)
+        # # # Step down
+        origin = (0, -np.sqrt(3)*r*index)
+        G.add_node(i,pos=origin)
+        i += 1
+
+        nodes = gen_nodes(origin)
+        boundary, spokes, i = add_nodes(nodes,i)
+        add_spokes_edges(spokes, boundary)
+
+    for index in range(1,num_cells):  
+        if (num_cells - index) % 2 == 0:
+            for j in range(1,(num_cells-index),2):
+                origin = ((3/2.)*r*index,(np.sqrt(3)/2.)*r*j)
+                G.add_node(i,pos=origin)
+                i += 1
+
+                nodes = gen_nodes(origin)
+                boundary, spokes, i = add_nodes(nodes,i)
+                add_spokes_edges(spokes, boundary)
+
+                origin = ((3/2.)*r*index,(-np.sqrt(3)/2.)*r*j)
+                G.add_node(i,pos=origin)
+                i += 1
+
+                nodes = gen_nodes(origin)
+                boundary, spokes, i = add_nodes(nodes,i)
+                add_spokes_edges(spokes, boundary)
+
+            # Step Left
+
+                origin = (-(3/2.)*r*index,(np.sqrt(3)/2.)*r*j)
+                G.add_node(i,pos=origin)
+                i += 1
+
+                nodes = gen_nodes(origin)
+                boundary, spokes, i = add_nodes(nodes,i)
+                add_spokes_edges(spokes, boundary)
+
+                origin = (-(3/2.)*r*index,(-np.sqrt(3)/2.)*r*j)
+                G.add_node(i,pos=origin)
+                i += 1
+
+                nodes = gen_nodes(origin)
+                boundary, spokes, i = add_nodes(nodes,i)
+                add_spokes_edges(spokes, boundary)
+
+        else:
+            for j in range(0,(num_cells-index),2):
+                origin = (3*(1/2.)*r*index, (np.sqrt(3)/2.)*r*j)
+                G.add_node(i,pos=origin)
+                i += 1
+
+                nodes = gen_nodes(origin)
+                boundary, spokes, i = add_nodes(nodes,i)
+                add_spokes_edges(spokes, boundary)
+                
+                if j != 0:
+                    origin = (3*(1/2.)*r*index, -(np.sqrt(3)/2.)*r*j)
+                    G.add_node(i,pos=origin)
+                    i += 1
+
+                    nodes = gen_nodes(origin)
+                    boundary, spokes, i = add_nodes(nodes,i)
+                    add_spokes_edges(spokes, boundary)
+
+                # Step Left
+                origin = (-3*(1/2.)*r*index, (np.sqrt(3)/2.)*r*j)
+                G.add_node(i,pos=origin)
+                i += 1
+
+                nodes = gen_nodes(origin)
+                boundary, spokes, i = add_nodes(nodes,i)
+                add_spokes_edges(spokes, boundary)
+                
+                if j != 0:
+                    origin = (-3*(1/2.)*r*index, -(np.sqrt(3)/2.)*r*j)
+                    G.add_node(i,pos=origin)
+                    i += 1
+
+                    nodes = gen_nodes(origin)
+                    boundary, spokes, i = add_nodes(nodes,i)
+                    add_spokes_edges(spokes, boundary)
 
     nx.set_node_attributes(G, 'time_lag', 0)
-        
-    centers = [3,8,12,15,20,27,23,30,37,44,33,40,47,54,61,50,57,64,71,67,74,79,82,86,91]
-                
+    
     for j in centers:
-        G.node[j]['time_lag'] = np.random.randint(0,2000)
-
-    return G
-
-
-
+            G.node[j]['time_lag'] = np.random.randint(0,2000)
+    
+    boundary = []
+    for j in G.nodes_iter():
+        if G.degree(j) == 3 or G.degree(j) == 5:
+            boundary.append(j)
+    
+    return G, centers, boundary
