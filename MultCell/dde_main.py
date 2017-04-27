@@ -255,8 +255,8 @@ def tissue():
 
     G = nx.Graph()
 
-    r = 7.6        # initial spoke length
-    num_cells = 11  # number of cells in center row
+    r = const.l_initial        # initial spoke length
+    num_cells = const.num_center_row  # number of cells in center row
 
     centers = []
     i = 0
