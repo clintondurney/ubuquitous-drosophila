@@ -227,24 +227,24 @@ def tissue():
         pos = nx.get_node_attributes(G,'pos')
         cen_index = i-1
         centers.append(cen_index)
-        boundary = []
+        AS_boundary = []
         spokes = []
         for node in nodes:
             add_node = True
             for existing_node in range(0,len(pos)):
                 if distance.euclidean(pos[existing_node],node) < 10**(-7):
                     add_node = False
-                    boundary.append(existing_node)
+                    AS_boundary.append(existing_node)
                     spokes.append((cen_index,existing_node))
                     break
 
             if add_node == True:
                 G.add_node(i,pos=node)
                 i += 1
-                boundary.append(i-1)
+                AS_boundary.append(i-1)
                 spokes.append((cen_index,i-1))
 
-        return boundary, spokes, i
+        return AS_boundary, spokes, i
 
     def add_spokes_edges(spokes, boundary):
         boundary.append(boundary[0])
@@ -255,8 +255,8 @@ def tissue():
 
     G = nx.Graph()
 
-    r = const.l_initial                 # initial spoke length
-    num_cells = const.num_center_row     # number of cells in center row
+    r = 7.6        # initial spoke length
+    num_cells = 11  # number of cells in center row
 
     centers = []
     i = 0
@@ -266,8 +266,8 @@ def tissue():
     i += 1
 
     nodes = gen_nodes(origin)
-    boundary, spokes, i = add_nodes(nodes,i)
-    add_spokes_edges(spokes, boundary)
+    AS_boundary, spokes, i = add_nodes(nodes,i)
+    add_spokes_edges(spokes, AS_boundary)
 
     for index in range(1,int((num_cells - 1)/2.)+1):
         # # Step Up
@@ -276,8 +276,8 @@ def tissue():
         i += 1
 
         nodes = gen_nodes(origin)
-        boundary, spokes, i = add_nodes(nodes,i)
-        add_spokes_edges(spokes, boundary)
+        AS_boundary, spokes, i = add_nodes(nodes,i)
+        add_spokes_edges(spokes, AS_boundary)
 
         # # # Step down
         origin = (0, -np.sqrt(3)*r*index)
@@ -285,8 +285,8 @@ def tissue():
         i += 1
 
         nodes = gen_nodes(origin)
-        boundary, spokes, i = add_nodes(nodes,i)
-        add_spokes_edges(spokes, boundary)
+        AS_boundary, spokes, i = add_nodes(nodes,i)
+        add_spokes_edges(spokes, AS_boundary)
 
     for index in range(1,num_cells):  
         if (num_cells - index) % 2 == 0:
@@ -296,16 +296,16 @@ def tissue():
                 i += 1
 
                 nodes = gen_nodes(origin)
-                boundary, spokes, i = add_nodes(nodes,i)
-                add_spokes_edges(spokes, boundary)
+                AS_boundary, spokes, i = add_nodes(nodes,i)
+                add_spokes_edges(spokes, AS_boundary)
 
                 origin = ((3/2.)*r*index,(-np.sqrt(3)/2.)*r*j)
                 G.add_node(i,pos=origin)
                 i += 1
 
                 nodes = gen_nodes(origin)
-                boundary, spokes, i = add_nodes(nodes,i)
-                add_spokes_edges(spokes, boundary)
+                AS_boundary, spokes, i = add_nodes(nodes,i)
+                add_spokes_edges(spokes, AS_boundary)
 
             # Step Left
 
@@ -314,16 +314,16 @@ def tissue():
                 i += 1
 
                 nodes = gen_nodes(origin)
-                boundary, spokes, i = add_nodes(nodes,i)
-                add_spokes_edges(spokes, boundary)
+                AS_boundary, spokes, i = add_nodes(nodes,i)
+                add_spokes_edges(spokes, AS_boundary)
 
                 origin = (-(3/2.)*r*index,(-np.sqrt(3)/2.)*r*j)
                 G.add_node(i,pos=origin)
                 i += 1
 
                 nodes = gen_nodes(origin)
-                boundary, spokes, i = add_nodes(nodes,i)
-                add_spokes_edges(spokes, boundary)
+                AS_boundary, spokes, i = add_nodes(nodes,i)
+                add_spokes_edges(spokes, AS_boundary)
 
         else:
             for j in range(0,(num_cells-index),2):
@@ -332,8 +332,8 @@ def tissue():
                 i += 1
 
                 nodes = gen_nodes(origin)
-                boundary, spokes, i = add_nodes(nodes,i)
-                add_spokes_edges(spokes, boundary)
+                AS_boundary, spokes, i = add_nodes(nodes,i)
+                add_spokes_edges(spokes, AS_boundary)
                 
                 if j != 0:
                     origin = (3*(1/2.)*r*index, -(np.sqrt(3)/2.)*r*j)
@@ -341,8 +341,8 @@ def tissue():
                     i += 1
 
                     nodes = gen_nodes(origin)
-                    boundary, spokes, i = add_nodes(nodes,i)
-                    add_spokes_edges(spokes, boundary)
+                    AS_boundary, spokes, i = add_nodes(nodes,i)
+                    add_spokes_edges(spokes, AS_boundary)
 
                 # Step Left
                 origin = (-3*(1/2.)*r*index, (np.sqrt(3)/2.)*r*j)
@@ -350,8 +350,8 @@ def tissue():
                 i += 1
 
                 nodes = gen_nodes(origin)
-                boundary, spokes, i = add_nodes(nodes,i)
-                add_spokes_edges(spokes, boundary)
+                AS_boundary, spokes, i = add_nodes(nodes,i)
+                add_spokes_edges(spokes, AS_boundary)
                 
                 if j != 0:
                     origin = (-3*(1/2.)*r*index, -(np.sqrt(3)/2.)*r*j)
@@ -359,17 +359,48 @@ def tissue():
                     i += 1
 
                     nodes = gen_nodes(origin)
-                    boundary, spokes, i = add_nodes(nodes,i)
-                    add_spokes_edges(spokes, boundary)
+                    AS_boundary, spokes, i = add_nodes(nodes,i)
+                    add_spokes_edges(spokes, AS_boundary)
 
     nx.set_node_attributes(G, 'time_lag', 0)
     
     for j in centers:
             G.node[j]['time_lag'] = np.random.randint(0,2000)
     
-    boundary = []
+    AS_boundary = []
     for j in G.nodes_iter():
         if G.degree(j) == 3 or G.degree(j) == 5:
-            boundary.append(j)
+            AS_boundary.append(j)
     
-    return G, centers, boundary
+    temp_sort = [(AS_boundary[0],0)]
+    pos = nx.get_node_attributes(G,'pos')
+    u = unit_vector(pos[0],pos[AS_boundary[0]])
+    for index in range(1,len(AS_boundary)):
+            v = unit_vector(pos[0],pos[AS_boundary[index]])
+            dot = np.dot(u,v)
+            det = np.linalg.det([u,v])
+            angle = np.arctan2(det,dot)     
+            temp_sort.append((AS_boundary[index],angle))
+    temp_sort = sorted(temp_sort, key=lambda tup: tup[1])
+    AS_boundary = [temp_sort[j][0] for j in range(0,len(temp_sort))]
+    
+    epidermis = []
+
+    for index in range(0,len(AS_boundary)):
+            temp = list(set(centers).intersection(G.neighbors(AS_boundary[index]))) 
+            if len(temp) == 1:
+                dirn = unit_vector(pos[temp[0]],pos[AS_boundary[index]])
+            else:
+                v_1 = unit_vector(pos[AS_boundary[index]],pos[temp[0]])
+                v_2 = unit_vector(pos[AS_boundary[index]],pos[temp[1]])
+                dirn = -(v_1[0]+v_2[0]),-(v_1[1]+v_2[1])
+            x = pos[AS_boundary[index]][0] + 10*dirn[0]
+            y = pos[AS_boundary[index]][1] + 10*dirn[1]
+            G.add_node(i,pos=(x,y))
+            G.add_edges_from([(AS_boundary[index],i)],beta=0,myosin=0, color='b')
+            epidermis.append(i)
+            i += 1
+    epidermis.append(epidermis[0]) 
+    G.add_path(epidermis,beta=0,myosin=0,color='b')
+    
+    return G, centers, epidermis
