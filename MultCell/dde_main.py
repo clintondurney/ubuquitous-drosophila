@@ -178,7 +178,14 @@ def d_pos(position,force,dt):
 ###############
 def calc_force(l, myosin):
     
-    return const.mu*(l-const.l0) + const.beta*myosin
+    if const.mu*(l-const.l0) < 10.5:
+        passive = const.mu*(l-const.l0)
+    else:
+        passive = 10.5
+
+    active = const.beta*myosin
+
+    return passive + active
 
 ###############
 def kminus(myo,length):
@@ -365,7 +372,7 @@ def tissue():
     nx.set_node_attributes(G, 'time_lag', 0)
     
     for j in centers:
-            G.node[j]['time_lag'] = np.random.randint(0,2000)
+            G.node[j]['time_lag'] = np.random.randint(0,240)
     
     AS_boundary = []
     for j in G.nodes_iter():

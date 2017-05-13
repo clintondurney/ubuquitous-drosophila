@@ -16,7 +16,7 @@ c_1 = 0.25
 c_2 = 1.33*10**(-2)            
 k_plus = 0.25*10**6
 
-mu = 0.75 
+mu = 0.50 
 l0 = 5.0
 l_initial = 7.6 
 beta = 10.**(-3)   
@@ -27,8 +27,8 @@ k2 = 30.75
 k3 = 0.0001
 k4 = 0.1
 qR  = 0.0004
-tau1 = 48.0
-tau2 = 59.3
+tau1 = 52.27 
+tau2 = 64.2
 
 # Initial conditions of Biochemical parameters
 Ac0 = 4.

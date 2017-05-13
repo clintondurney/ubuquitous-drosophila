@@ -38,32 +38,22 @@ cellareaFile = open('cellarea.csv','w')
 cellareaWriter = csv.writer(cellareaFile,delimiter='\t')
 cellareaWriter.writerow(header)
 
-# Set-up output files: cell area
+# Set-up output files: reg level 
 regFile = open('reg.csv','w')
 regWriter = csv.writer(regFile,delimiter='\t')
 regWriter.writerow(header)
 
-# Initial conditions of Biochemical parameters
-Ac = const.Ac0
-Am = const.Am0
-Bc = const.Bc0
-Bm = const.Bm0
-Rm = const.Rm0
-AB = const.AB0
-AR = const.AR0
-
 # Run dde solver for the Biochemical concentrations
 dt = 0.1
 tf = 10000
-(t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_initializer(Ac,Am,Bc,Bm,Rm,AB,AR,tf,dt)
+(t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_initializer(const.Ac0,const.Am0,const.Bc0,const.Bm0,const.Rm0,const.AB0,const.AR0,tf,dt)
 
 pic_num = 0 
 for index in range(0,len(t)):
     H = G.copy() 
-    
     nodes = nx.get_node_attributes(G,'pos')
     
-    ## Update myosin concentration on each spoke ##
+    ## Update myosin concentration on each spoke
     myo_hist = []
     area_hist = []
     reg_hist = []
@@ -72,6 +62,7 @@ for index in range(0,len(t)):
         myosin_total = 0        # zero total myosin before continuing to next cell
         
         # Calculate cell area for the nth cell
+        # Need to sort outer nodes in CW direction to calculate area
         corners = [neighbor for neighbor in G.neighbors(n)]
         corn_sort = [(corners[0],0)]
         u = unit_vector(nodes[n],nodes[corners[0]])
@@ -97,20 +88,22 @@ for index in range(0,len(t)):
             length = distance.euclidean(nodes[n],corn2[j])
             myosin_current = G[n][corn_sort[j][0]]['myosin']
             
-            #update myosin on this edge
-            if (index - G.node[n]['time_lag']) >= 0:
-                Reg = Rm[index-G.node[n]['time_lag']]
+            # Update myosin on this edge (need to *10 because index is in tenths of seconds)
+            if (index - G.node[n]['time_lag']*10) >= 0:
+                Reg = Rm[index-G.node[n]['time_lag']*10]
             else:
                 Reg = 0
             G[n][corn_sort[j][0]]['myosin'] = dmyosin(myosin_current, geo_frac*Reg, length, dt)
 
             # Sum the total myosin in the current cell
             myosin_total += G[n][corn_sort[j][0]]['myosin']
-
+        
+        # Update list for CSV file writing
         myo_hist.append(myosin_total)
         area_hist.append(cell_area)
         reg_hist.append(Reg)
 
+    # Write to the CSV file
     myosinWriter.writerow([t[index]] + myo_hist)
     cellareaWriter.writerow([t[index]] + area_hist)
     regWriter.writerow([t[index]] + reg_hist)
@@ -131,6 +124,7 @@ for index in range(0,len(t)):
         if point not in boundary:
             G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt)
 
+    # Output a picture every 10 seconds
     if index % 10 == 0:
         pic_num += 1
         print t[index]
@@ -142,6 +136,7 @@ for index in range(0,len(t)):
         
         plt.axis("on")
         plt.grid("on")
+        plt.axis("equal")
         plt.suptitle("t = %s"%t[index])
 
         plt.savefig('tmp%03d.png'%pic_num)
