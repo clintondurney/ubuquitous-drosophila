@@ -23,7 +23,7 @@ import csv
 ###########
 
 # Initialize tissue
-G, centers, boundary = tissue()
+G, centers, boundary, AS_boundary = tissue()
 H = nx.Graph()
 
 # Set-up output file: myosin
@@ -42,6 +42,12 @@ cellareaWriter.writerow(header)
 regFile = open('reg.csv','w')
 regWriter = csv.writer(regFile,delimiter='\t')
 regWriter.writerow(header)
+
+
+# Actin Cable Formation
+for j in range(0,len(AS_boundary)):
+    G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = 7500
+
 
 # Run dde solver for the Biochemical concentrations
 dt = 0.1
@@ -108,6 +114,12 @@ for index in range(0,len(t)):
     cellareaWriter.writerow([t[index]] + area_hist)
     regWriter.writerow([t[index]] + reg_hist)
 
+    # Actin Cable Formation
+#    for j in range(0,len(AS_boundary)):
+#        G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] += 10
+
+
+
     ## Update force ##
     # iterate over all nodes in graph
     for point in G.nodes_iter():
@@ -124,7 +136,7 @@ for index in range(0,len(t)):
         if point not in boundary:
             G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt)
 
-    # Output a picture every 10 seconds
+    # Output a picture every 1 seconds
     if index % 10 == 0:
         pic_num += 1
         print t[index]

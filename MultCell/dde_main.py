@@ -177,12 +177,15 @@ def d_pos(position,force,dt):
 
 ###############
 def calc_force(l, myosin):
-    
+   
+    # Calculate passive elastic force with max value to delay node popping
+    # Biological basis of actin tracks would restructure themselves after buckling
     if const.mu*(l-const.l0) < 10.5:
         passive = const.mu*(l-const.l0)
     else:
         passive = 10.5
 
+    # Active force component due to myosin
     active = const.beta*myosin
 
     return passive + active
@@ -197,7 +200,6 @@ def kminus(myo,length):
 
 ################
 def fun(y,signal,length):
-    # needs updated for geo distribution
     
     return(const.k_plus*signal - kminus(y,length)*y)
 
@@ -255,15 +257,15 @@ def tissue():
 
     def add_spokes_edges(spokes, boundary):
         boundary.append(boundary[0])
-        G.add_edges_from(spokes,beta=10,myosin=1000)    
-        G.add_path(boundary,beta=0,myosin=0,color='r')
+        G.add_edges_from(spokes,myosin=const.myo0)    
+        G.add_path(boundary,myosin=0,color='r')
 
         return
 
     G = nx.Graph()
 
-    r = const.l_initial        # initial spoke length
-    num_cells = const.num_center_row  # number of cells in center row
+    r = const.l_initial                 # initial spoke length
+    num_cells = const.num_center_row    # number of cells in center row
 
     centers = []
     i = 0
@@ -286,7 +288,7 @@ def tissue():
         AS_boundary, spokes, i = add_nodes(nodes,i)
         add_spokes_edges(spokes, AS_boundary)
 
-        # # # Step down
+        # # Step down
         origin = (0, -np.sqrt(3)*r*index)
         G.add_node(i,pos=origin)
         i += 1
@@ -393,6 +395,7 @@ def tissue():
     
     epidermis = []
 
+    # Addition of epidermal boundary
     for index in range(0,len(AS_boundary)):
             temp = list(set(centers).intersection(G.neighbors(AS_boundary[index]))) 
             if len(temp) == 1:
@@ -404,10 +407,10 @@ def tissue():
             x = pos[AS_boundary[index]][0] + 10*dirn[0]
             y = pos[AS_boundary[index]][1] + 10*dirn[1]
             G.add_node(i,pos=(x,y))
-            G.add_edges_from([(AS_boundary[index],i)],beta=0,myosin=0, color='b')
+            G.add_edges_from([(AS_boundary[index],i)],myosin=0, color='b')
             epidermis.append(i)
             i += 1
     epidermis.append(epidermis[0]) 
-    G.add_path(epidermis,beta=0,myosin=0,color='b')
+    G.add_path(epidermis,myosin=0,color='b')
     
-    return G, centers, epidermis
+    return G, centers, epidermis, AS_boundary
