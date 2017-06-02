@@ -39,19 +39,13 @@ cellareaWriter = csv.writer(cellareaFile,delimiter='\t')
 cellareaWriter.writerow(header)
 
 # Set-up output files: reg level 
-regFile = open('reg.csv','w')
-regWriter = csv.writer(regFile,delimiter='\t')
-regWriter.writerow(header)
-
-
-# Actin Cable Formation
-for j in range(0,len(AS_boundary)):
-    G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = 7500
-
+# regFile = open('reg.csv','w')
+# regWriter = csv.writer(regFile,delimiter='\t')
+# regWriter.writerow(header)
 
 # Run dde solver for the Biochemical concentrations
 dt = 0.1
-tf = 10000
+tf = 7700
 (t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_initializer(const.Ac0,const.Am0,const.Bc0,const.Bm0,const.Rm0,const.AB0,const.AR0,tf,dt)
 
 pic_num = 0 
@@ -62,8 +56,13 @@ for index in range(0,len(t)):
     ## Update myosin concentration on each spoke
     myo_hist = []
     area_hist = []
-    reg_hist = []
+#    reg_hist = []
 
+    # Actin Cable Formation
+    if index == 2700*10:
+        for j in range(0,len(AS_boundary)):
+            G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = 7500
+    
     for n in centers:
         myosin_total = 0        # zero total myosin before continuing to next cell
         
@@ -107,18 +106,12 @@ for index in range(0,len(t)):
         # Update list for CSV file writing
         myo_hist.append(myosin_total)
         area_hist.append(cell_area)
-        reg_hist.append(Reg)
+#        reg_hist.append(Reg)
 
     # Write to the CSV file
     myosinWriter.writerow([t[index]] + myo_hist)
     cellareaWriter.writerow([t[index]] + area_hist)
-    regWriter.writerow([t[index]] + reg_hist)
-
-    # Actin Cable Formation
-#    for j in range(0,len(AS_boundary)):
-#        G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] += 10
-
-
+#    regWriter.writerow([t[index]] + reg_hist)
 
     ## Update force ##
     # iterate over all nodes in graph
@@ -126,13 +119,28 @@ for index in range(0,len(t)):
     	# iterate over all neighbors of node
     	total_force = [0,0]
     	for neighbor in G.neighbors(point):
-            # calculate the unit vector from node to neighbor
-            dir_vector = unit_vector(H.node[point]['pos'],H.node[neighbor]['pos'])
-            # calculate magnitude of force
-            length = distance.euclidean(H.node[point]['pos'],H.node[neighbor]['pos'])
-            mag_force = calc_force(length,G[point][neighbor]['myosin'])
+            if neighbor not in boundary:
+                # if neighbor is not in boundary, then have passive and active forces
+
+                # calculate the unit vector from node to neighbor
+                dir_vector = unit_vector(H.node[point]['pos'],H.node[neighbor]['pos'])
+                # calculate magnitude of force
+                length = distance.euclidean(H.node[point]['pos'],H.node[neighbor]['pos'])
+                mag_force = calc_force(length,G[point][neighbor]['myosin'])
+            #    total_force = np.sum([total_force,mag_force*np.array(dir_vector)],axis=0)
+            else:
+                # if neighbor is in boundary, then it is an epidermis spoke
+                
+                # calculate the unit vector from node to neighbor
+                dir_vector = unit_vector(H.node[point]['pos'],H.node[neighbor]['pos'])
+                
+                # calculate magnitude of force
+                # length = distance.euclidean(H.node[point]['pos'],H.node[neighbor]['pos'])
+                length = 8.75/const.mu              # desired constant force of F = mu*l 
+                mag_force = calc_force(length,0)    # myosin = 0 as no myosin accumulate here.
             total_force = np.sum([total_force,mag_force*np.array(dir_vector)],axis=0)
 
+        # Update Node locations of those not fixed (the epidermis boundary)
         if point not in boundary:
             G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt)
 
