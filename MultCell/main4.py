@@ -15,10 +15,6 @@ import csv
 # Author: Clinton H. Durney
 # Email: cdurney@math.ubc.ca
 #
-# Last Edit: 4/17/17
-#
-# To Do:    
-#
 #
 ###########
 
@@ -64,7 +60,7 @@ for index in range(0,len(t)):
 #            G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = 7500
 
     for j in range(0,len(AS_boundary)):
-        G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = 10000/(1+np.exp((-.001)*(t[index]-6000)))
+        G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = 10000/(1+np.exp((-.01)*(t[index]-6000)))
 
 
     for n in centers:
