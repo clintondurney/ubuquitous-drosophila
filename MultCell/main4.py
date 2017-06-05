@@ -144,21 +144,22 @@ for index in range(0,len(t)):
         if point not in boundary:
             G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt)
 
+    print t[index]
     # Output a picture every 1 seconds
-    if index % 10 == 0:
-        pic_num += 1
-        print t[index]
-        plt.clf()
-        pos = nx.get_node_attributes(G,'pos')
-
-        edges,colors = zip(*nx.get_edge_attributes(G,'color').items())
-        nx.draw(G,pos, node_size = 1, edgelist=edges,edge_color=colors,width=1)
-        
-        plt.axis("on")
-        plt.grid("on")
-        plt.axis("equal")
-        plt.suptitle("t = %s"%t[index])
-
-        plt.savefig('tmp%03d.png'%pic_num)
+#    if index % 10 == 0:
+#        pic_num += 1
+#        print t[index]
+#        plt.clf()
+#        pos = nx.get_node_attributes(G,'pos')
+#
+#        edges,colors = zip(*nx.get_edge_attributes(G,'color').items())
+#        nx.draw(G,pos, node_size = 1, edgelist=edges,edge_color=colors,width=1)
+#        
+#        plt.axis("on")
+#        plt.grid("on")
+#        plt.axis("equal")
+#        plt.suptitle("t = %s"%t[index])
+#
+#        plt.savefig('tmp%03d.png'%pic_num)
 
 
