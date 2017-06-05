@@ -60,7 +60,7 @@ for index in range(0,len(t)):
 #            G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = 7500
 
     for j in range(0,len(AS_boundary)):
-        G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = 10000/(1+np.exp((-.01)*(t[index]-6000)))
+        G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = 20000/(1+np.exp((-.01)*(t[index]-2700)))
 
 
     for n in centers:
@@ -136,7 +136,7 @@ for index in range(0,len(t)):
                 
                 # calculate magnitude of force
                 # length = distance.euclidean(H.node[point]['pos'],H.node[neighbor]['pos'])
-                length = 8.75/const.mu              # desired constant force of F = mu*l 
+                length = 7.5/const.mu              # desired constant force of F = mu*l 
                 mag_force = calc_force(length,0)    # myosin = 0 as no myosin accumulate here.
             total_force = np.sum([total_force,mag_force*np.array(dir_vector)],axis=0)
 
