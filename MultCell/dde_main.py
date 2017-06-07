@@ -404,8 +404,8 @@ def tissue():
                 v_1 = unit_vector(pos[AS_boundary[index]],pos[temp[0]])
                 v_2 = unit_vector(pos[AS_boundary[index]],pos[temp[1]])
                 dirn = -(v_1[0]+v_2[0]),-(v_1[1]+v_2[1])
-            x = pos[AS_boundary[index]][0] + 15*dirn[0]
-            y = pos[AS_boundary[index]][1] + 15*dirn[1]
+            x = pos[AS_boundary[index]][0] + 10*dirn[0]
+            y = pos[AS_boundary[index]][1] + 10*dirn[1]
             G.add_node(i,pos=(x,y))
             G.add_edges_from([(AS_boundary[index],i)],myosin=0, color='b')      # Addition of "spoke"
             epidermis.append(i)

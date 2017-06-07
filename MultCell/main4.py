@@ -54,13 +54,10 @@ for index in range(0,len(t)):
     area_hist = []
 #    reg_hist = []
 
-#    # Actin Cable Formation
-#    if index == 2700*10:
-#        for j in range(0,len(AS_boundary)):
-#            G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = 7500
-
+    # Actin Cable Formation
+    # Formation follows a Logisitic Curve with params AC_max, k (steepness) and x0 - center of log. curve
     for j in range(0,len(AS_boundary)):
-        G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = 20000/(1+np.exp((-.01)*(t[index]-2700)))
+        G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = const.AC_max/(1+np.exp((-const.k)*(t[index]-const.x0)))
 
 
     for n in centers:
@@ -121,7 +118,6 @@ for index in range(0,len(t)):
     	for neighbor in G.neighbors(point):
             if neighbor not in boundary:
                 # if neighbor is not in boundary, then have passive and active forces
-
                 # calculate the unit vector from node to neighbor
                 dir_vector = unit_vector(H.node[point]['pos'],H.node[neighbor]['pos'])
                 # calculate magnitude of force
@@ -130,14 +126,13 @@ for index in range(0,len(t)):
             #    total_force = np.sum([total_force,mag_force*np.array(dir_vector)],axis=0)
             else:
                 # if neighbor is in boundary, then it is an epidermis spoke
-                
                 # calculate the unit vector from node to neighbor
                 dir_vector = unit_vector(H.node[point]['pos'],H.node[neighbor]['pos'])
-                
+                length = distance.euclidean(H.node[point]['pos'],H.node[neighbor]['pos'])
                 # calculate magnitude of force
                 # length = distance.euclidean(H.node[point]['pos'],H.node[neighbor]['pos'])
-                length = 7.5/const.mu              # desired constant force of F = mu*l 
-                mag_force = calc_force(length,0)    # myosin = 0 as no myosin accumulate here.
+                const_force_length = const.epi_tension/const.mu             # desired constant force of F = mu*l 
+                mag_force = calc_force(const_force_length,0) + 0.5*calc_force(length,0) # myosin = 0 as no myosin accumulate here.
             total_force = np.sum([total_force,mag_force*np.array(dir_vector)],axis=0)
 
         # Update Node locations of those not fixed (the epidermis boundary)
