@@ -62,9 +62,8 @@ for index in range(0,len(t)+1):
 
     ## Update myosin concentration on each spoke
     for n in centers:
+        myosin_total = 0        # zero total myosin before continuing to next cell
         if n not in area_blacklist:
-            myosin_total = 0        # zero total myosin before continuing to next cell
-            
             # Calculate cell area for the nth cell
             # Need to sort outer nodes in CW direction to calculate area
             corners = [neighbor for neighbor in G.neighbors(n)]
@@ -108,9 +107,8 @@ for index in range(0,len(t)+1):
 
                     # Sum the total myosin in the current cell
                     myosin_total += G[n][corn_sort[j][0]]['myosin']
-            else:
-                myosin_total = 0
-                cell_area = 0
+        else:
+            cell_area = 0
             # Update list for CSV file writing
         myo_hist.append(myosin_total)
         area_hist.append(cell_area)
@@ -151,7 +149,6 @@ for index in range(0,len(t)+1):
         if point not in boundary:
             G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt)
 
-    print t[index]
     # Output a picture every 1 seconds
     if index % 10 == 0:
         pic_num += 1
