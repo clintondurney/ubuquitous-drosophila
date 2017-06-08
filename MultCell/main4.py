@@ -44,8 +44,9 @@ dt = 0.1
 tf = 7700
 (t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_initializer(const.Ac0,const.Am0,const.Bc0,const.Bm0,const.Rm0,const.AB0,const.AR0,tf,dt)
 
+area_blacklist = []
 pic_num = 0 
-for index in range(0,len(t)):
+for index in range(0,len(t)+1):
     H = G.copy() 
     nodes = nx.get_node_attributes(G,'pos')
     
@@ -61,49 +62,59 @@ for index in range(0,len(t)):
 
     ## Update myosin concentration on each spoke
     for n in centers:
-        myosin_total = 0        # zero total myosin before continuing to next cell
-        
-        # Calculate cell area for the nth cell
-        # Need to sort outer nodes in CW direction to calculate area
-        corners = [neighbor for neighbor in G.neighbors(n)]
-        corn_sort = [(corners[0],0)]
-        u = unit_vector(nodes[n],nodes[corners[0]])
-        for i in range(1,len(corners)):
-            v = unit_vector(nodes[n],nodes[corners[i]])
-            dot = np.dot(u,v)
-            det = np.linalg.det([u,v])
-            angle = np.arctan2(det,dot)
-            corn_sort.append((corners[i],angle))
-        corn_sort = sorted(corn_sort, key=lambda tup: tup[1])
-        corn2 = [nodes[entry[0]] for entry in corn_sort]
-        
-        cell_area = CellArea(corn2)
-        
-        for j in range(0,len(corn2)):
-            # Calculate area of adjacent triangles of the spoke    
-            inner = [corn2[np.mod(j,6)],corn2[np.mod(j+1,6)],nodes[n],corn2[np.mod(j-1,6)]]
-             
-            spoke_area = CellArea(inner)
-            geo_frac = spoke_area/cell_area
+        if n not in area_blacklist:
+            myosin_total = 0        # zero total myosin before continuing to next cell
             
-            # Calculate necessary parameters for dm/dt
-            length = distance.euclidean(nodes[n],corn2[j])
-            myosin_current = G[n][corn_sort[j][0]]['myosin']
+            # Calculate cell area for the nth cell
+            # Need to sort outer nodes in CW direction to calculate area
+            corners = [neighbor for neighbor in G.neighbors(n)]
+            corn_sort = [(corners[0],0)]
+            u = unit_vector(nodes[n],nodes[corners[0]])
+            for i in range(1,len(corners)):
+                v = unit_vector(nodes[n],nodes[corners[i]])
+                dot = np.dot(u,v)
+                det = np.linalg.det([u,v])
+                angle = np.arctan2(det,dot)
+                corn_sort.append((corners[i],angle))
+            corn_sort = sorted(corn_sort, key=lambda tup: tup[1])
+            corn2 = [nodes[entry[0]] for entry in corn_sort]
+            cell_area = CellArea(corn2)
             
-            # Update myosin on this edge (need to *10 because index is in tenths of seconds)
-            if (index - G.node[n]['time_lag']*10) >= 0:
-                Reg = Rm[index-G.node[n]['time_lag']*10]
+            if cell_area < 1:
+                # if cell area is less than 1 micron^2, then remove cell by adding to area_blacklist
+                area_blacklist.append(n)
+                # Contract the nodes of removed cell
+                for node_removed in G.neighbors(n):
+                     G = nx.contracted_nodes(G,n,node_removed)
+                cell_area = 0
             else:
-                Reg = 0
-            G[n][corn_sort[j][0]]['myosin'] = dmyosin(myosin_current, geo_frac*Reg, length, dt)
+                for j in range(0,len(corn2)):
+                    # Calculate area of adjacent triangles of the spoke    
+                    inner = [corn2[np.mod(j,6)],corn2[np.mod(j+1,6)],nodes[n],corn2[np.mod(j-1,6)]]
+                 
+                    spoke_area = CellArea(inner)
+                    geo_frac = spoke_area/cell_area
+                
+                    # Calculate necessary parameters for dm/dt
+                    length = distance.euclidean(nodes[n],corn2[j])
+                    myosin_current = G[n][corn_sort[j][0]]['myosin']
+                
+                    # Update myosin on this edge (need to *10 because index is in tenths of seconds)
+                    if (index - G.node[n]['time_lag']*10) >= 0:
+                        Reg = Rm[index-G.node[n]['time_lag']*10]
+                    else:
+                        Reg = 0
+                    G[n][corn_sort[j][0]]['myosin'] = dmyosin(myosin_current, geo_frac*Reg, length, dt)
 
-            # Sum the total myosin in the current cell
-            myosin_total += G[n][corn_sort[j][0]]['myosin']
-        
-        # Update list for CSV file writing
+                    # Sum the total myosin in the current cell
+                    myosin_total += G[n][corn_sort[j][0]]['myosin']
+            else:
+                myosin_total = 0
+                cell_area = 0
+            # Update list for CSV file writing
         myo_hist.append(myosin_total)
         area_hist.append(cell_area)
-#        reg_hist.append(Reg)
+#       reg_hist.append(Reg)
 
     # Write to the CSV file
     myosinWriter.writerow([t[index]] + myo_hist)
@@ -142,20 +153,20 @@ for index in range(0,len(t)):
 
     print t[index]
     # Output a picture every 1 seconds
-#    if index % 10 == 0:
-#        pic_num += 1
-#        print t[index]
-#        plt.clf()
-#        pos = nx.get_node_attributes(G,'pos')
-#
-#        edges,colors = zip(*nx.get_edge_attributes(G,'color').items())
-#        nx.draw(G,pos, node_size = 1, edgelist=edges,edge_color=colors,width=1)
-#        
-#        plt.axis("on")
-#        plt.grid("on")
-#        plt.axis("equal")
-#        plt.suptitle("t = %s"%t[index])
-#
-#        plt.savefig('tmp%03d.png'%pic_num)
+    if index % 10 == 0:
+        pic_num += 1
+        print t[index]
+        plt.clf()
+        pos = nx.get_node_attributes(G,'pos')
+
+        edges,colors = zip(*nx.get_edge_attributes(G,'color').items())
+        nx.draw(G,pos, node_size = 1, edgelist=edges,edge_color=colors,width=1)
+        
+        plt.axis("on")
+        plt.grid("on")
+        plt.axis("equal")
+        plt.suptitle("t = %s"%t[index])
+
+        plt.savefig('tmp%03d.png'%pic_num)
 
 
