@@ -49,7 +49,6 @@ for index in range(0,len(t)):
     H = G.copy() 
     nodes = nx.get_node_attributes(G,'pos')
     
-    ## Update myosin concentration on each spoke
     myo_hist = []
     area_hist = []
 #    reg_hist = []
@@ -60,6 +59,7 @@ for index in range(0,len(t)):
         G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = const.AC_max/(1+np.exp((-const.k)*(t[index]-const.x0)))
 
 
+    ## Update myosin concentration on each spoke
     for n in centers:
         myosin_total = 0        # zero total myosin before continuing to next cell
         
@@ -130,9 +130,10 @@ for index in range(0,len(t)):
                 dir_vector = unit_vector(H.node[point]['pos'],H.node[neighbor]['pos'])
                 length = distance.euclidean(H.node[point]['pos'],H.node[neighbor]['pos'])
                 # calculate magnitude of force
-                # length = distance.euclidean(H.node[point]['pos'],H.node[neighbor]['pos'])
-                const_force_length = const.epi_tension/const.mu             # desired constant force of F = mu*l 
-                mag_force = calc_force(const_force_length,0) + 0.5*calc_force(length,0) # myosin = 0 as no myosin accumulate here.
+                # desired constant force -- F=mu*l 
+                const_force_length = const.epi_tension/const.mu
+                # mag_force = const. force + elastic force component
+                mag_force = calc_force(const_force_length,0) + calc_force(length,0) 
             total_force = np.sum([total_force,mag_force*np.array(dir_vector)],axis=0)
 
         # Update Node locations of those not fixed (the epidermis boundary)
