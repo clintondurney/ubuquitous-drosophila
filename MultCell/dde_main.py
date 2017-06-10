@@ -163,6 +163,9 @@ def unit_vector(A,B):
 
     dist = distance.euclidean(A,B)
 
+    if dist < .00001:
+        dist = 1
+    
     return ((B[0]-A[0])/dist,(B[1]-A[1])/dist)
 
 ###############
@@ -221,8 +224,28 @@ def CellArea(corners):
 
 ################
 def conc2mol(IC, cell_vol):
+    
     Mol = IC*10**(-3)*10**(-12)*6.022*10**(23)*cell_vol
+    
     return Mol
+
+
+################
+def sort_corners(corners,pos_nodes,n):
+
+    corn_sort = [(corners[0],0)]
+    u = unit_vector(pos_nodes[n],pos_nodes[corners[0]])
+    for i in range(1,len(corners)):
+        v = unit_vector(pos_nodes[n],pos_nodes[corners[i]])
+        dot = np.dot(u,v)
+        det = np.linalg.det([u,v])
+        angle = np.arctan2(det,dot)
+        corn_sort.append((corners[i],angle))
+        corn_sort = sorted(corn_sort, key=lambda tup: tup[1])
+        corn2 = [pos_nodes[entry[0]] for entry in corn_sort]
+    
+    return corn2, corn_sort
+
 
 ################
 def tissue():

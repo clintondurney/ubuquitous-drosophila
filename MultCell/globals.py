@@ -10,7 +10,7 @@
 #########
 
 
-num_center_row = 11
+num_center_row = 11 
 
 c_1 = 0.25                 
 c_2 = 1.33*10**(-2)            
@@ -21,10 +21,10 @@ l0 = 5.0
 l_initial = 7.6 
 beta = 10.**(-3)   
 eta = 100.0
-epi_tension = 7.5
+epi_tension = 7.5 
 AC_max = 20000
 k = 0.01
-x0 = 2700
+x0 = 2700 
 
 k1 = 0.1          
 k2 = 30.75
