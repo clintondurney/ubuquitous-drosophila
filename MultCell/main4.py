@@ -67,7 +67,7 @@ for t_index in range(0,len(t)+1):
             
             if cell_area < 1.0:
                 # if cell area is less than 1 micron^2, then remove cell by adding to area_blacklist
-                print "deleting cell!"
+                print "deleting cell ", n  
                 area_blacklist.append(n)
                 # Contract the neighboring nodes of the removed cell
                 for node_removed in G.neighbors(n):

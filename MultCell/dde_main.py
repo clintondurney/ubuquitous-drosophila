@@ -164,7 +164,7 @@ def unit_vector(A,B):
     dist = distance.euclidean(A,B)
 
     if dist < .00001:
-        dist = 1
+        dist = 1.0
     
     return ((B[0]-A[0])/dist,(B[1]-A[1])/dist)
 
