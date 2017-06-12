@@ -156,7 +156,7 @@ for t_index in range(0,len(t)+1):
                 # desired constant force -- F=mu*l 
                 const_force_length = const.epi_tension/const.mu
                 # mag_force = const. force + elastic force component
-                mag_force = calc_force(const_force_length,0) + 0*calc_force(length,0) 
+                mag_force = calc_force(const_force_length,0) + calc_force(length,0) 
             total_force = np.sum([total_force,mag_force*np.array(dir_vector)],axis=0)
 
         # Update Node locations of those not fixed (the epidermis boundary)
