@@ -65,53 +65,52 @@ for t_index in range(0,len(t)+1):
             sorted_corners,corn_sort_deg = sort_corners(corners_need_sorted,pos,n)
             cell_area = CellArea(sorted_corners)
             
-            if cell_area < 1.0:
-                # if cell area is less than 1 micron^2, then remove cell by adding to area_blacklist
-                print "deleting cell ", n  
-                area_blacklist.append(n)
-                # Contract the neighboring nodes of the removed cell
-                for node_removed in G.neighbors(n):
-                    if node_removed in AS_boundary:
-                        AS_boundary.remove(node_removed)
-                        if n not in AS_boundary:
-                            # only add in once
-                            AS_boundary.append(n)
-                        # re-sort AS boundary
-                        co_ords, node_deg_sorted = sort_corners(AS_boundary,pos,0)
-                        AS_boundary = [node_deg_sorted[j][0] for j in range(0,len(node_deg_sorted))]
+            #if cell_area < 1.0:
+            #    # if cell area is less than 1 micron^2, then remove cell by adding to area_blacklist
+            #    print "deleting cell ", n  
+            #    area_blacklist.append(n)
+            #    # Contract the neighboring nodes of the removed cell
+            #    for node_removed in G.neighbors(n):
+            #        if node_removed in AS_boundary:
+            #            AS_boundary.remove(node_removed)
+            #            if n not in AS_boundary:
+            #                # only add in once
+            #                AS_boundary.append(n)
+            #            # re-sort AS boundary
+            #            co_ords, node_deg_sorted = sort_corners(AS_boundary,pos,0)
+            #            AS_boundary = [node_deg_sorted[j][0] for j in range(0,len(node_deg_sorted))]
+            #        
+            #        G = nx.contracted_nodes(G,n,node_removed)
+            #        
+            #        if node_removed in area_blacklist:
+            #            # if in this list, it is a former center that was contracted
+            #            G.remove_node(node_removed)
+            #    cell_area = 0
+	    for j in range(0,len(sorted_corners)):
+                # Calculate area of adjacent triangles of the spoke    
+                num_corners = len(sorted_corners)
                     
-                    G = nx.contracted_nodes(G,n,node_removed)
+                tri_1 = [pos[n], sorted_corners[np.mod(j-1,num_corners)],sorted_corners[np.mod(j,num_corners)]]
+                tri_2 = [pos[n], sorted_corners[np.mod(j,num_corners)],sorted_corners[np.mod(j+1,num_corners)]]
                     
-                    if node_removed in area_blacklist:
-                        # if in this list, it is a former center that was contracted
-                        G.remove_node(node_removed)
-                cell_area = 0
-            else:
-		for j in range(0,len(sorted_corners)):
-                    # Calculate area of adjacent triangles of the spoke    
-                    num_corners = len(sorted_corners)
-                    
-                    tri_1 = [pos[n], sorted_corners[np.mod(j-1,num_corners)],sorted_corners[np.mod(j,num_corners)]]
-                    tri_2 = [pos[n], sorted_corners[np.mod(j,num_corners)],sorted_corners[np.mod(j+1,num_corners)]]
-                    
-                    spoke_area = CellArea(tri_1)/2.0 + CellArea(tri_2)/2.0
+                spoke_area = CellArea(tri_1)/2.0 + CellArea(tri_2)/2.0
                    
-                    geo_frac = spoke_area/cell_area
+                geo_frac = spoke_area/cell_area
                     
-                    # Calculate necessary parameters for dm/dt
-                    length = distance.euclidean(pos[n],sorted_corners[j])
-                    myosin_current = G[n][corn_sort_deg[j][0]]['myosin']
+                # Calculate necessary parameters for dm/dt
+                length = distance.euclidean(pos[n],sorted_corners[j])
+                myosin_current = G[n][corn_sort_deg[j][0]]['myosin']
                 
-                    # Update myosin on this edge (need to *10 because t_index is in tenths of seconds)
-                    if (t_index - G.node[n]['time_lag']*10) >= 0:
-                        Reg = Rm[t_index-G.node[n]['time_lag']*10]
-                    else:
-                        Reg = 0
+                # Update myosin on this edge (need to *10 because t_index is in tenths of seconds)
+                if (t_index - G.node[n]['time_lag']*10) >= 0:
+                    Reg = Rm[t_index-G.node[n]['time_lag']*10]
+                else:
+                    Reg = 0
                     
-                    G[n][corn_sort_deg[j][0]]['myosin'] = dmyosin(myosin_current, geo_frac*Reg, length, dt)
+                G[n][corn_sort_deg[j][0]]['myosin'] = dmyosin(myosin_current, geo_frac*Reg, length, dt)
 
-                    # Sum the total myosin in the current cell
-                    myosin_total += G[n][corn_sort_deg[j][0]]['myosin']
+                # Sum the total myosin in the current cell
+                myosin_total += G[n][corn_sort_deg[j][0]]['myosin']
         
         else:
             cell_area = 0
@@ -156,13 +155,27 @@ for t_index in range(0,len(t)+1):
                 # desired constant force -- F=mu*l 
                 const_force_length = const.epi_tension/const.mu
                 # mag_force = const. force + elastic force component
-                mag_force = calc_force(const_force_length,0) + calc_force(length,0) 
+                mag_force = calc_force(const_force_length,0) #+ calc_force(length,0) 
             total_force = np.sum([total_force,mag_force*np.array(dir_vector)],axis=0)
 
         # Update Node locations of those not fixed (the epidermis boundary)
         if point not in boundary:
             G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt)
 
+    for point in G.nodes_iter():
+        for neighbor in G.neighbors(point):
+            if neighbor not in boundary:
+                length = distance.euclidean(G.node[point]['pos'],G.node[neighbor]['pos'])
+                if length < 0.01:
+                    if point in centers:    
+                        nx.contracted_edge(G,(point,neighbor))
+                        if neighbor in centers:
+                            area_blacklist.append(neighbor)
+                        G.remove_node(neighbor)
+                    else:
+                        nx.contracted_edge(G,(point,neighbor))
+                        G.remove_node(neighbor) 
+   
     # Output a picture every 1 seconds
     if t_index % 10 == 0:
         pic_num += 1
