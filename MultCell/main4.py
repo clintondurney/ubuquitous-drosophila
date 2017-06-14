@@ -161,21 +161,24 @@ for t_index in range(0,len(t)+1):
         # Update Node locations of those not fixed (the epidermis boundary)
         if point not in boundary:
             G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt)
-
+    to_be_removed = []
     for point in G.nodes_iter():
         for neighbor in G.neighbors(point):
             if neighbor not in boundary:
                 length = distance.euclidean(G.node[point]['pos'],G.node[neighbor]['pos'])
-                if length < 0.01:
+                if length < 1:
+                    print "Edge is to be removed!"
                     if point in centers:    
-                        nx.contracted_edge(G,(point,neighbor))
+                        to_be_removed.append((point,neighbor))
                         if neighbor in centers:
                             area_blacklist.append(neighbor)
-                        G.remove_node(neighbor)
                     else:
-                        nx.contracted_edge(G,(point,neighbor))
-                        G.remove_node(neighbor) 
-   
+                        to_be_removed.append((point,neighbor))
+    set(tuple(sorted(l)) for l in to_be_removed)
+    for entry in to_be_removed:
+        pdb.set_trace()
+        G = nx.contracted_edge(G,entry)
+        G.remove_node(entry[1])
     # Output a picture every 1 seconds
     if t_index % 10 == 0:
         pic_num += 1
@@ -184,7 +187,7 @@ for t_index in range(0,len(t)+1):
         pos = nx.get_node_attributes(G,'pos')
 
         edges,colors = zip(*nx.get_edge_attributes(G,'color').items())
-        nx.draw(G,pos, node_size = 1, edgelist=edges,edge_color=colors,width=1)
+        nx.draw(G,pos, node_size = 40, edgelist=edges,edge_color=colors,width=1)
         
         plt.axis("on")
         plt.grid("on")
