@@ -55,7 +55,7 @@ for t_index in range(0,len(t)+1):
     area_hist = []
 #    reg_hist = []
 
-    ## Update myosin concentration on each spoke
+    ## Update myosin concentration on each spoke ##
     for n in centers:
         myosin_total = 0        # zero total myosin before continuing to next cell
         if n not in area_blacklist:
@@ -127,7 +127,7 @@ for t_index in range(0,len(t)+1):
 #    regWriter.writerow([t[t_index]] + reg_hist)
 
 
-    # Actin Cable Formation
+    ## Actin Cable Formation ##
     # Formation follows a Logisitic Curve with params AC_max, k (steepness) and x0 - center of log. curve
     for j in range(0,len(AS_boundary)):
         G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = const.AC_max/(1+np.exp((-const.k)*(t[t_index]-const.x0)))
@@ -160,7 +160,7 @@ for t_index in range(0,len(t)+1):
             total_force = np.sum([total_force,mag_force*np.array(dir_vector)],axis=0)
 
         # Update Node locations of those not fixed (the epidermis boundary)
-        if point not in boundary:
+        if point not in boundary and point not in area_blacklist:
             G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt)
 
     # Output a picture every 1 seconds
