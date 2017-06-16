@@ -174,20 +174,29 @@ for t_index in range(0,len(t)+1):
                             area_blacklist.append(neighbor)
                     else:
                         to_be_removed.append((point,neighbor))
-    set(tuple(sorted(l)) for l in to_be_removed)
+    set(tuple(sorted(l)) for l in to_be_removed)     
     for entry in to_be_removed:
-        pdb.set_trace()
-        G = nx.contracted_edge(G,entry)
-        G.remove_node(entry[1])
-    # Output a picture every 1 seconds
-    if t_index % 10 == 0:
+        print to_be_removed
+        if G.has_edge(entry[0],entry[1]) == True:
+#        G.remove_node(entry[1])
+            G = nx.contracted_nodes(G,entry[0],entry[1])
+            if entry[1] in AS_boundary:
+                AS_boundary.remove(entry[1])
+                # re-sort AS boundary
+                co_ords, node_deg_sorted = sort_corners(AS_boundary,pos,0)
+                AS_boundary = [node_deg_sorted[j][0] for j in range(0,len(node_deg_sorted))]
+            G.remove_node(entry[1])
+
+
+# Output a picture every 1 seconds
+    if t_index % 1 == 0:
         pic_num += 1
         print t[t_index]
         plt.clf()
         pos = nx.get_node_attributes(G,'pos')
 
         edges,colors = zip(*nx.get_edge_attributes(G,'color').items())
-        nx.draw(G,pos, node_size = 40, edgelist=edges,edge_color=colors,width=1)
+        nx.draw(G,pos, node_size = 40, edgelist=edges,edge_color=colors,width=1,with_labels = True)
         
         plt.axis("on")
         plt.grid("on")
