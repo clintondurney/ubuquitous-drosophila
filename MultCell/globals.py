@@ -10,7 +10,7 @@
 #########
 
 
-num_center_row = 11 
+num_center_row = 5 
 
 c_1 = 0.25                 
 c_2 = 1.33*10**(-2)            

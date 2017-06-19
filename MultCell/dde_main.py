@@ -249,6 +249,17 @@ def sort_corners(corners,pos_nodes,n):
     
     return corn2, corn_sort
 
+################
+def num_AS_nodes(K,node,epidermis_nodes):
+    # Calculate how many of a node's neighbors on AS boundary nodes
+    # When a node is connected to >5 AS nodes it is frozen as this would resemble
+    # a fused epidermis.
+    num_AS_nbhr = 0
+    for neighbor in K.neighbors(node):
+        if neighbor in epidermis_nodes:
+            num_AS_nbhr += 1
+    return num_AS_nbhr
+
 
 ################
 def tissue():
@@ -398,7 +409,6 @@ def tissue():
                     add_spokes_edges(spokes, AS_boundary)
 
     nx.set_node_attributes(G, 'time_lag', 0)
-    
     for j in centers:
             G.node[j]['time_lag'] = np.random.randint(0,240*4)
     
@@ -438,5 +448,10 @@ def tissue():
             i += 1
     epidermis.append(epidermis[0]) 
     G.add_path(epidermis,myosin=0,color='b')                                    # Addtion of boundary edges
+    
+    nx.set_node_attributes(G, 'num_AS_nbhd', 0)
+    
+    for node in G.nodes_iter():
+        G.node[node]['num_AS_nbhd'] = num_AS_nodes(G,node,epidermis) 
     
     return G, centers, epidermis, AS_boundary

@@ -85,6 +85,7 @@ for t_index in range(0,len(t)+1):
                     if node_removed in area_blacklist:
                         # if in this list, it is a former center that was contracted
                         G.remove_node(node_removed)
+                G.node[n]['num_AS_nbhd'] = num_AS_nodes(G,n,boundary)
                 cell_area = 0
             else:
 		for j in range(0,len(sorted_corners)):
@@ -160,7 +161,7 @@ for t_index in range(0,len(t)+1):
             total_force = np.sum([total_force,mag_force*np.array(dir_vector)],axis=0)
 
         # Update Node locations of those not fixed (the epidermis boundary)
-        if point not in boundary and point not in area_blacklist:
+        if point not in boundary and G.node[point]['num_AS_nbhd'] < 5:
             G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt)
 
     # Output a picture every 1 seconds
