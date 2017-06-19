@@ -189,8 +189,11 @@ def calc_force(l, myosin):
         passive = 10.5
 
     # Active force component due to myosin
-    active = const.beta*myosin
-
+    if myosin < 40000:
+        active = const.beta*myosin
+    else:
+        active = const.beta*40000
+    
     return passive + active
 
 ###############
@@ -397,7 +400,7 @@ def tissue():
     nx.set_node_attributes(G, 'time_lag', 0)
     
     for j in centers:
-            G.node[j]['time_lag'] = np.random.randint(0,240)
+            G.node[j]['time_lag'] = np.random.randint(0,240*4)
     
     AS_boundary = []
     for j in G.nodes_iter():

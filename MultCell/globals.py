@@ -22,7 +22,7 @@ l_initial = 7.6
 beta = 10.**(-3)   
 eta = 100.0
 epi_tension = 7.5 
-AC_max = 20000
+AC_max = 30000
 k = 0.01
 x0 = 2700 
 
