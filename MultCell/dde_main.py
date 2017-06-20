@@ -250,15 +250,26 @@ def sort_corners(corners,pos_nodes,n):
     return corn2, corn_sort
 
 ################
-def num_AS_nodes(K,node,epidermis_nodes):
-    # Calculate how many of a node's neighbors on AS boundary nodes
-    # When a node is connected to >5 AS nodes it is frozen as this would resemble
-    # a fused epidermis.
-    num_AS_nbhr = 0
+def determine_freeze(K,node_pos,node,epidermis_nodes):
+    # Determine if a node can be moved based on the spokes to the epidermis
+    # When a node is connected to an epidermis node above and below it is assumed
+    # that the epidermis fused
+    above = False
+    below = False
+
     for neighbor in K.neighbors(node):
         if neighbor in epidermis_nodes:
-            num_AS_nbhr += 1
-    return num_AS_nbhr
+            v = unit_vector(node_pos[node],node_pos[neighbor])
+            if v[1] > 0:
+                above = True
+            if v[1] < 0: 
+                below = True
+    
+    if above == True and below == True:
+        return True
+    
+    else:
+        return False
 
 
 ################
@@ -408,6 +419,7 @@ def tissue():
                     AS_boundary, spokes, i = add_nodes(nodes,i)
                     add_spokes_edges(spokes, AS_boundary)
 
+    nx.set_node_attributes(G, 'frozen', False)
     nx.set_node_attributes(G, 'time_lag', 0)
     for j in centers:
             G.node[j]['time_lag'] = np.random.randint(0,240*4)
@@ -443,15 +455,11 @@ def tissue():
             x = pos[AS_boundary[index]][0] + 10*dirn[0]
             y = pos[AS_boundary[index]][1] + 10*dirn[1]
             G.add_node(i,pos=(x,y))
+            G.node[i]['frozen'] = True
             G.add_edges_from([(AS_boundary[index],i)],myosin=0, color='b')      # Addition of "spoke"
             epidermis.append(i)
             i += 1
     epidermis.append(epidermis[0]) 
     G.add_path(epidermis,myosin=0,color='b')                                    # Addtion of boundary edges
-    
-    nx.set_node_attributes(G, 'num_AS_nbhd', 0)
-    
-    for node in G.nodes_iter():
-        G.node[node]['num_AS_nbhd'] = num_AS_nodes(G,node,epidermis) 
     
     return G, centers, epidermis, AS_boundary

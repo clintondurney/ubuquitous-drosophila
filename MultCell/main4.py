@@ -66,27 +66,33 @@ for t_index in range(0,len(t)+1):
             cell_area = CellArea(sorted_corners)
             
             if cell_area < 1.0:
-                # if cell area is less than 1 micron^2, then remove cell by adding to area_blacklist
-                print "deleting cell ", n  
-                area_blacklist.append(n)
-                # Contract the neighboring nodes of the removed cell
-                for node_removed in G.neighbors(n):
-                    if node_removed in AS_boundary:
-                        AS_boundary.remove(node_removed)
-                        if n not in AS_boundary:
-                            # only add in once
-                            AS_boundary.append(n)
-                        # re-sort AS boundary
-                        co_ords, node_deg_sorted = sort_corners(AS_boundary,pos,0)
-                        AS_boundary = [node_deg_sorted[j][0] for j in range(0,len(node_deg_sorted))]
+                delete_cell = True
+                for neighbor in G.neighbors(n):
+                    if distance.euclidean(pos[n],pos[neighbor]) > 0.5:
+                        delete_cell = False
+                        break
+                if delete_cell == True:          
+                    # if cell area is less than 1 micron^2, then remove cell by adding to area_blacklist
+                    print "deleting cell ", n  
+                    area_blacklist.append(n)
+                    # Contract the neighboring nodes of the removed cell
+                    for node_removed in G.neighbors(n):
+                        if node_removed in AS_boundary:
+                            AS_boundary.remove(node_removed)
+                            if n not in AS_boundary:
+                                # only add in once
+                                AS_boundary.append(n)
+                            # re-sort AS boundary
+                            co_ords, node_deg_sorted = sort_corners(AS_boundary,pos,0)
+                            AS_boundary = [node_deg_sorted[j][0] for j in range(0,len(node_deg_sorted))]
                     
-                    G = nx.contracted_nodes(G,n,node_removed)
+                        G = nx.contracted_nodes(G,n,node_removed)
                     
-                    if node_removed in area_blacklist:
-                        # if in this list, it is a former center that was contracted
-                        G.remove_node(node_removed)
-                G.node[n]['num_AS_nbhd'] = num_AS_nodes(G,n,boundary)
-                cell_area = 0
+                        if node_removed in area_blacklist:
+                            # if in this list, it is a former center that was contracted
+                            G.remove_node(node_removed)
+                    G.node[n]['frozen'] = determine_freeze(G,pos,n,boundary)
+                    cell_area = 0
             else:
 		for j in range(0,len(sorted_corners)):
                     # Calculate area of adjacent triangles of the spoke    
@@ -138,7 +144,8 @@ for t_index in range(0,len(t)+1):
     # iterate over all nodes in graph
     for point in G.nodes_iter():
     	# iterate over all neighbors of node
-    	total_force = [0,0]
+    	update_location = True
+        total_force = [0,0]
     	for neighbor in G.neighbors(point):
             if neighbor not in boundary:
                 # if neighbor is not in boundary, then have passive and active forces
@@ -157,11 +164,14 @@ for t_index in range(0,len(t)+1):
                 # desired constant force -- F=mu*l 
                 const_force_length = const.epi_tension/const.mu
                 # mag_force = const. force + elastic force component
-                mag_force = calc_force(const_force_length,0) + calc_force(length,0) 
+                mag_force = calc_force(const_force_length,0) + 0*calc_force(length,0) 
             total_force = np.sum([total_force,mag_force*np.array(dir_vector)],axis=0)
+        
+        if length < 0.0001 or G.node[point]['frozen'] == True:
+            update_location = False
 
         # Update Node locations of those not fixed (the epidermis boundary)
-        if point not in boundary and G.node[point]['num_AS_nbhd'] < 5:
+        if update_location == True:
             G.node[point]['pos'] = d_pos(H.node[point]['pos'],total_force, dt)
 
     # Output a picture every 1 seconds

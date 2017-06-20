@@ -17,14 +17,14 @@ c_2 = 1.33*10**(-2)
 k_plus = 0.25*10**6
 
 mu = 0.5 
-l0 = 5.0 
-l_initial = 7.6 
+l0 = 1.0 
+l_initial = 2.0 
 beta = 10.**(-3)   
 eta = 100.0
-epi_tension = 7.5 
+epi_tension = 0.5 
 AC_max = 30000
 k = 0.01
-x0 = 2700 
+x0 = 1000 
 
 k1 = 0.1          
 k2 = 30.75
