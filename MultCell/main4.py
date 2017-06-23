@@ -94,7 +94,8 @@ for t_index in range(0,len(t)+1):
                     G.node[n]['frozen'] = determine_freeze(G,pos,n,boundary)
                     cell_area = 0
             else:
-		for j in range(0,len(sorted_corners)):
+		geo_frac_list = []
+                for j in range(0,len(sorted_corners)):
                     # Calculate area of adjacent triangles of the spoke    
                     num_corners = len(sorted_corners)
                     
@@ -104,7 +105,8 @@ for t_index in range(0,len(t)+1):
                     spoke_area = CellArea(tri_1)/2.0 + CellArea(tri_2)/2.0
                    
                     geo_frac = spoke_area/cell_area
-                    
+                    geo_frac_list.append(geo_frac)
+
                     # Calculate necessary parameters for dm/dt
                     length = distance.euclidean(pos[n],sorted_corners[j])
                     myosin_current = G[n][corn_sort_deg[j][0]]['myosin']
@@ -119,7 +121,12 @@ for t_index in range(0,len(t)+1):
 
                     # Sum the total myosin in the current cell
                     myosin_total += G[n][corn_sort_deg[j][0]]['myosin']
-        
+                
+                if myosin_total >= 40000:
+                    myosin_total = 40000
+                    for j in range(0,len(sorted_corners)):
+                        G[n][corn_sort_deg[j][0]]['myosin'] = geo_frac_list[j]*myosin_total
+                
         else:
             cell_area = 0
         

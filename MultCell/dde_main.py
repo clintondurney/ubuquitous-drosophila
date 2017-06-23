@@ -189,10 +189,7 @@ def calc_force(l, myosin):
         passive = 10.5
 
     # Active force component due to myosin
-    if myosin < 40000:
-        active = const.beta*myosin
-    else:
-        active = const.beta*40000
+    active = const.beta*myosin
     
     return passive + active
 
