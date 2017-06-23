@@ -62,7 +62,7 @@ for t_index in range(0,len(t)+1):
             # Calculate cell area for the nth cell
             # Need to sort outer nodes in CW direction to calculate area
             corners_need_sorted = [neighbor for neighbor in G.neighbors(n)]
-            sorted_corners,corn_sort_deg = sort_corners(corners_need_sorted,pos,n)
+            sorted_corners,corn_sort_deg = sort_corners(corners_need_sorted,pos[n],pos)
             cell_area = CellArea(sorted_corners)
             
             if cell_area < 1.0:
@@ -83,7 +83,7 @@ for t_index in range(0,len(t)+1):
                                 # only add in once
                                 AS_boundary.append(n)
                             # re-sort AS boundary
-                            co_ords, node_deg_sorted = sort_corners(AS_boundary,pos,0)
+                            co_ords, node_deg_sorted = sort_corners(AS_boundary,(0,0),pos)
                             AS_boundary = [node_deg_sorted[j][0] for j in range(0,len(node_deg_sorted))]
                     
                         G = nx.contracted_nodes(G,n,node_removed)

@@ -216,6 +216,7 @@ def dmyosin(y,Reg,length, dt):
 
 ################
 def CellArea(corners):
+   
     n = len(corners) # of corners
     area = 0.0
     for i in range(n):
@@ -234,12 +235,12 @@ def conc2mol(IC, cell_vol):
 
 
 ################
-def sort_corners(corners,pos_nodes,n):
+def sort_corners(corners,center_pos,pos_nodes):
 
     corn_sort = [(corners[0],0)]
-    u = unit_vector(pos_nodes[n],pos_nodes[corners[0]])
+    u = unit_vector(center_pos,pos_nodes[corners[0]])
     for i in range(1,len(corners)):
-        v = unit_vector(pos_nodes[n],pos_nodes[corners[i]])
+        v = unit_vector(center_pos,pos_nodes[corners[i]])
         dot = np.dot(u,v)
         det = np.linalg.det([u,v])
         angle = np.arctan2(det,dot)
