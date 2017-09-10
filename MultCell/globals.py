@@ -14,9 +14,9 @@ num_center_row = 11
 
 c_1 = 0.25                 
 c_2 = 1.33*10**(-2)            
-k_plus = 0.25*10**6
+k_plus = 6.0*10**3
 
-mu = 0.5 
+mu = 0.75 
 l0 = 5.0 
 l_initial = 7.6 
 beta = 10.**(-3)   
@@ -26,22 +26,27 @@ AC_max = 30000
 k = 0.01
 x0 = 2700 
 
-k1 = 0.1          
-k2 = 30.75
-k3 = 0.0001
-k4 = 0.1
-qR  = 0.0004
-tau1 = 52.27 
-tau2 = 64.2
+k1 = 0.00125          
+k2 = 75.0
+k3 = 2.5
+k4 = 0.00125
+k5 = 5.0
+k6 = 0.0001
+k7 = 3.5
+k8 = 0.00001
+qR  = 0.01
+tau1 = 100.0 
 
 # Initial conditions of Biochemical parameters
-Ac0 = 4.
+Ac0 = 1.0
 Am0 = 0.
-Bc0 = 1.
+Bc0 = 5.
 Bm0 = 0.
-Rm0 = 0.
+Ra0 = 0.
+Ri0 = 0.
 AB0 = 0.
 AR0 = 0.
+BmStar = 0.
 myo0 = 0. 
 
 

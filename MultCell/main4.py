@@ -44,8 +44,8 @@ cellareaWriter.writerow(header)
 
 # Run dde solver for the Biochemical concentrations
 dt = 0.1
-tf = 9000 
-(t,Ac,Am,Bc,Bm,Rm,AB,AR) = dde_initializer(const.Ac0,const.Am0,const.Bc0,const.Bm0,const.Rm0,const.AB0,const.AR0,tf,dt)
+tf = 14000 
+(t,Rm) = dde_baz_cluster(const.k1,const.k2,const.k3,const.k4,const.k5,const.k6,const.k7,const.k8,const.qR,const.tau1,const.Ac0,const.Bc0)
 
 for t_index in range(0,len(t)+1):
     H = G.copy() 
@@ -122,10 +122,10 @@ for t_index in range(0,len(t)+1):
                     # Sum the total myosin in the current cell
                     myosin_total += G[n][corn_sort_deg[j][0]]['myosin']
                 
-                if myosin_total >= 40000:
-                    myosin_total = 40000
-                    for j in range(0,len(sorted_corners)):
-                        G[n][corn_sort_deg[j][0]]['myosin'] = geo_frac_list[j]*myosin_total
+#                if myosin_total >= 40000:
+#                    myosin_total = 40000
+#                    for j in range(0,len(sorted_corners)):
+#                        G[n][corn_sort_deg[j][0]]['myosin'] = geo_frac_list[j]*myosin_total
                 
         else:
             cell_area = 0

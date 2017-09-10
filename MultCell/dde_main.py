@@ -16,6 +16,88 @@ import itertools
 
 
 
+def dde_baz_cluster(k1i,k2i,k3i,k4i,k5i,k6i,k7i,k8i,qRi,tau_1i,Ai,Bi):
+    # the model equations 
+    eqns = { 
+        'Ac' : '-k1*Ac*Ra',
+        'Bc' : '-k4*Am*Bc',
+        'Am' : 'k1*Ac(t-tau1)*Ra(t-tau1) - k2*Am*Ra + k3*AR - k7*Am*Bmstar + k8*AB',
+        'Bm' : 'k4*Am*Bc - k5*Bm*Ra + k6*Bmstar',
+        'Ra' : 'qR - k2*Am*Ra',
+        'Ri' : 'k3*AR',
+        'AR' : 'k2*Am*Ra - k3*AR',
+        'AB' : 'k7*Am*Bmstar - k8*AB',
+        'Bmstar' : 'k5*Bm*Ra - k6*Bmstar'
+        }
+
+    # define parameters
+    params = {
+        'k1' : k1i,           
+        'k2' : k2i,
+        'k3' : k3i,
+        'k4' : k4i,
+        'k5' : k5i,
+        'k6' : k6i,
+        'k7' : k7i,
+        'k8' : k8i,
+        'qR' : qRi,
+        'tau1' : tau_1i
+        }
+
+    # initial conditions
+    init_cond = {
+        'Ac' : Ai,
+        'Am' : 0.,
+        'Bc' : Bi,
+        'Bm' : 0.,
+        'Bmstar' : 0.,
+        'Ra' : 0.,
+        'Ri' : 0.,
+        'AB' : 0.,
+        'AR' : 0.
+        }
+
+    # intialize the solver
+    dde = dde23(eqns=eqns, params=params)
+
+    # set the simulation parameters
+    # (solve from t=0 to tfinal and limit the maximum step size to 1.0) 
+    dde.set_sim_params(tfinal=14000, dtmax = 1.0 )
+
+
+    # set the history of the proteins
+    histfunc = {
+        'Ac' : lambda t: init_cond['Ac'], 
+        'Am' : lambda t: init_cond['Am'],
+        'Bc' : lambda t: init_cond['Bc'],
+        'Bm' : lambda t: init_cond['Bm'],
+        'Bmstar' : lambda t: init_cond['Bmstar'],
+        'Ra' : lambda t: init_cond['Ra'],
+        'Ri' : lambda t: init_cond['Ri'],
+        'AB' : lambda t: init_cond['AB'],
+        'AR' : lambda t: init_cond['AR']
+            }
+    dde.hist_from_funcs(histfunc, 500)
+
+    # run the simulator
+    dde.run()
+
+    sol1 = dde.sample(0,14000,0.1)
+
+    t = sol1['t']
+    Ac = sol1['Ac']
+    Am = sol1['Am']
+    Bc = sol1['Bc']
+    Bm = sol1['Bm']
+    Bmstar = sol1['Bmstar']
+    Ra = sol1['Ra']
+    Ri = sol1['Ri']
+    AB = sol1['AB']
+    AR = sol1['AR']
+
+    return(t,Ra)
+
+
 def dde_initializer(Ac_i,Am_i,Bc_i,Bm_i,Rm_i,AB_i,AR_i,tf,dt):
     # the model equations 
     eqns = { 
@@ -420,7 +502,7 @@ def tissue():
     nx.set_node_attributes(G, 'frozen', False)
     nx.set_node_attributes(G, 'time_lag', 0)
     for j in centers:
-            G.node[j]['time_lag'] = np.random.randint(0,240*4)
+            G.node[j]['time_lag'] = np.random.randint(0,240*2)
     
     AS_boundary = []
     for j in G.nodes_iter():
