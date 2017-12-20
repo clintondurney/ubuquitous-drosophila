@@ -14,7 +14,7 @@ num_center_row = 11
 
 c_1 = 0.25                 
 c_2 = 1.33*10**(-2)            
-k_plus = 6.0*10**3
+k_plus = 1.0*10**4
 
 mu = 0.75 
 l0 = 5.0 
@@ -31,16 +31,16 @@ k2 = 75.0
 k3 = 2.5
 k4 = 0.00125
 k5 = 5.0
-k6 = 0.0001
+k6 = 0.001
 k7 = 3.5
 k8 = 0.00001
-qR  = 0.01
+qR  = 0.015
 tau1 = 100.0 
 
 # Initial conditions of Biochemical parameters
-Ac0 = 1.0
+Ac0 = 3.0
 Am0 = 0.
-Bc0 = 5.
+Bc0 = 3.0
 Bm0 = 0.
 Ra0 = 0.
 Ri0 = 0.
