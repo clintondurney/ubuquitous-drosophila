@@ -1,5 +1,7 @@
 import pdb
 import networkx as nx
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import globals as const
@@ -189,7 +191,7 @@ for t_index in range(0,len(t)+1):
         pos = nx.get_node_attributes(G,'pos')
 
         edges,colors = zip(*nx.get_edge_attributes(G,'color').items())
-        nx.draw(G,pos, node_size = 1, edgelist=edges,edge_color=colors,width=1)
+        nx.draw(G,pos, node_size = 0, edgelist=edges,edge_color=colors,width=2,node_color='black')
         
         plt.axis("on")
         plt.grid("on")

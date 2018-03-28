@@ -386,7 +386,7 @@ def tissue():
     def add_spokes_edges(spokes, boundary):
         boundary.append(boundary[0])
         G.add_edges_from(spokes,myosin=const.myo0)    
-        G.add_path(boundary,myosin=0,color='r')
+        G.add_path(boundary,myosin=0,color='#808080')
 
         return
 
@@ -540,6 +540,6 @@ def tissue():
             epidermis.append(i)
             i += 1
     epidermis.append(epidermis[0]) 
-    G.add_path(epidermis,myosin=0,color='b')                                    # Addtion of boundary edges
+    G.add_path(epidermis,myosin=0,color='k')                                    # Addtion of boundary edges
     
     return G, centers, epidermis, AS_boundary
