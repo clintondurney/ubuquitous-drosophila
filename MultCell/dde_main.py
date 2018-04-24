@@ -347,7 +347,6 @@ def determine_freeze(K,node_pos,node,epidermis_nodes):
     
     if above == True and below == True:
         return True
-    
     else:
         return False
 

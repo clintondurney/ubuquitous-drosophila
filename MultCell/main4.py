@@ -124,10 +124,6 @@ for t_index in range(0,len(t)+1):
                     # Sum the total myosin in the current cell
                     myosin_total += G[n][corn_sort_deg[j][0]]['myosin']
                 
-#                if myosin_total >= 40000:
-#                    myosin_total = 40000
-#                    for j in range(0,len(sorted_corners)):
-#                        G[n][corn_sort_deg[j][0]]['myosin'] = geo_frac_list[j]*myosin_total
                 
         else:
             cell_area = 0
@@ -144,10 +140,17 @@ for t_index in range(0,len(t)+1):
 
 
     ## Actin Cable Formation ##
-    # Formation follows a Logisitic Curve with params AC_max, k (steepness) and x0 - center of log. curve
-    for j in range(0,len(AS_boundary)):
-        G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = const.AC_max/(1+np.exp((-const.k)*(t[t_index]-const.x0)))
-
+    # Outdated: Formation follows a Logisitic Curve with params AC_max, k (steepness) and x0 - center of log. curve
+    # Updated: Piecewise linear function
+    if t_index < 2700:
+        for j in range(0,len(AS_boundary)):
+            G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = 0 
+    elif t_index >= 2700 and t_index < 9000:
+        for j in range(0,len(AS_boundary)):
+            G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = (300/63)*(t_index-2700) 
+    else:
+        for j in range(0,len(AS_boundary)):
+            G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = AC_max 
 
     ## Update force ##
     # iterate over all nodes in graph
@@ -199,5 +202,4 @@ for t_index in range(0,len(t)+1):
         plt.suptitle("t = %s"%t[t_index])
 
         plt.savefig('tmp%03d.png'%pic_num)
-
 
