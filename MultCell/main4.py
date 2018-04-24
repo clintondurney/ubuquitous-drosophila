@@ -142,12 +142,12 @@ for t_index in range(0,len(t)+1):
     ## Actin Cable Formation ##
     # Outdated: Formation follows a Logisitic Curve with params AC_max, k (steepness) and x0 - center of log. curve
     # Updated: Piecewise linear function
-    if t_index < 2700:
+    if t_index < const.x0:
         for j in range(0,len(AS_boundary)):
             G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = 0 
-    elif t_index >= 2700 and t_index < 9000:
+    elif t_index >= const.x0 and t_index < (const.x0 + 150*60):
         for j in range(0,len(AS_boundary)):
-            G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = (300/63)*(t_index-2700) 
+            G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = (300/63)*(t_index-const.x0) 
     else:
         for j in range(0,len(AS_boundary)):
             G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = AC_max 
