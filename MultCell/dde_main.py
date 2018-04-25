@@ -500,8 +500,9 @@ def tissue():
 
     nx.set_node_attributes(G, 'frozen', False)
     nx.set_node_attributes(G, 'time_lag', 0)
+    np.random.seed(50)
     for j in centers:
-            G.node[j]['time_lag'] = np.random.randint(0,240*2)
+            G.node[j]['time_lag'] = np.random.randint(0,240)
     
     AS_boundary = []
     for j in G.nodes_iter():
