@@ -145,9 +145,9 @@ for t_index in range(0,len(t)+1):
     if t[t_index] < const.x0:
         for j in range(0,len(AS_boundary)):
             G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = 0 
-    elif t[t_index] >= const.x0 and t[t_index] < (const.x0 + 150*60):
+    elif t[t_index] >= const.x0 and t[t_index] < (const.x0 + 120*60):
         for j in range(0,len(AS_boundary)):
-            G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = (300/63)*(t[t_index]-const.x0) 
+            G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = (300/72)*(t[t_index]-const.x0) 
     else:
         for j in range(0,len(AS_boundary)):
             G[AS_boundary[j-1]][AS_boundary[j]]['myosin'] = const.AC_max 
@@ -197,9 +197,12 @@ for t_index in range(0,len(t)+1):
         nx.draw(G,pos, node_size = 0, edgelist=edges,edge_color=colors,width=2,node_color='black')
         
         plt.axis("on")
-        plt.grid("on")
+        #plt.grid("on")
         plt.axis("equal")
-        plt.suptitle("t = %s"%t[t_index])
+        plt.rc('text', usetex=True)
+        plt.rcParams['text.latex.preamble']=[r"\usepackage{amsmath}"]
+    
+        plt.suptitle("t = %s"%t[t_index], size=14,weight='bold')
 
-        plt.savefig('tmp%03d.png'%pic_num)
+        plt.savefig('tmp%03d.pdf'%pic_num, format='pdf',dpi=1000,figsize=(4,3))
 
